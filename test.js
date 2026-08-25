@@ -13,6 +13,7 @@ import { isAllowedUser } from './src/utils/github.js';
 import { renderStackCard } from './src/renderers/renderStackCard.js';
 import { renderStatsCard } from './src/renderers/renderStatsCard.js';
 import { renderStatusCard } from './src/renderers/renderStatusCard.js';
+import { renderTerminalCard } from './src/renderers/renderTerminalCard.js';
 import { resolveTheme, themes } from './src/themes/index.js';
 import { escapeXml, parseBoolean, parseList, parseNumber, sanitizeColor, sanitizeUsername } from './src/utils/sanitize.js';
 import { cacheControl, formatCount, mixColor } from './src/utils/svgHelpers.js';
@@ -236,5 +237,30 @@ assert.match(cacheControl(300), /max-age=300, s-maxage=300/, 's-maxage tracks ma
 assert.match(cacheControl(5), /max-age=60/, 'clamped up to a minute');
 assert.match(cacheControl(999999), /max-age=86400/, 'clamped down to a day');
 assert.match(cacheControl('nonsense'), /max-age=14400/, 'garbage falls back to the default');
+
+// --- terminal card --------------------------------------------------------
+
+const terminal = renderTerminalCard({
+  title: '~/PROJECTS - BASH',
+  lines: ['$ whoami', 'jfrusher', '$ echo "<script>"'],
+  theme: themes.system
+});
+assertWellFormed(terminal, 'terminal card');
+assertInsideCard(terminal, 'terminal card');
+assert.ok(!terminal.includes('<script>'), 'transcript markup is escaped');
+assert.ok(terminal.includes('class="value reveal"'), 'commands use the accent colour');
+assert.ok(terminal.includes('class="body reveal"'), 'output does not');
+assert.ok(terminal.includes('class="blink"'), 'cursor blinks by default');
+assert.ok(
+  !renderTerminalCard({ lines: ['x'], theme: themes.system, cursor: false }).includes('class="blink"')
+);
+
+// A line longer than the card must be cut to the character grid, not overflow.
+const longLine = renderTerminalCard({ lines: ['x'.repeat(400)], theme: themes.system, width: 300 });
+const drawn = longLine.match(/<text[^>]*>(x+)<\/text>/)[1].length;
+assert.ok(drawn <= Math.floor((300 - 32) / 7.2), `line should be clipped to fit, got ${drawn} chars`);
+assertInsideCard(longLine, 'clipped terminal card');
+
+assertWellFormed(renderTerminalCard({ lines: [], theme: themes.system }), 'empty terminal card');
 
 console.log('All checks passed.');

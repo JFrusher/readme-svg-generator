@@ -18,10 +18,12 @@ const ROUTES = {
   '/api/card': () => import('./api/card.js'),
   '/api/stack': () => import('./api/stack.js'),
   '/api/stats': () => import('./api/stats.js'),
+  '/api/terminal': () => import('./api/terminal.js'),
   // The clean paths `vercel.json` rewrites in production.
   '/card': () => import('./api/card.js'),
   '/stack': () => import('./api/stack.js'),
-  '/stats': () => import('./api/stats.js')
+  '/stats': () => import('./api/stats.js'),
+  '/terminal': () => import('./api/terminal.js')
 };
 
 const CONTENT_TYPES = {

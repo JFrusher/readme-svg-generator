@@ -3,16 +3,35 @@
   "cleanUrls": true,
   "trailingSlash": false,
   "rewrites": [
-    { "source": "/card", "destination": "/api/card" },
-    { "source": "/stack", "destination": "/api/stack" },
-    { "source": "/stats", "destination": "/api/stats" }
+    {
+      "source": "/card",
+      "destination": "/api/card"
+    },
+    {
+      "source": "/stack",
+      "destination": "/api/stack"
+    },
+    {
+      "source": "/stats",
+      "destination": "/api/stats"
+    },
+    {
+      "source": "/terminal",
+      "destination": "/api/terminal"
+    }
   ],
   "headers": [
     {
       "source": "/api/(.*)",
       "headers": [
-        { "key": "Content-Type", "value": "image/svg+xml; charset=utf-8" },
-        { "key": "Access-Control-Allow-Origin", "value": "*" }
+        {
+          "key": "Content-Type",
+          "value": "image/svg+xml; charset=utf-8"
+        },
+        {
+          "key": "Access-Control-Allow-Origin",
+          "value": "*"
+        }
       ]
     }
   ]
