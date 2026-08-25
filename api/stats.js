@@ -6,7 +6,9 @@
  *   animate, include_private, bg_color, text_color, accent_color, border_color
  *
  * Needs a `GITHUB_TOKEN` with public read scope: the GraphQL API rejects
- * anonymous requests outright. Failures render an error card instead of a
+ * anonymous requests outright. A deployed instance is otherwise an open proxy
+ * to the GitHub API spending your rate limit, so set `ALLOWED_USERS` in
+ * production to pin it to the handles you actually render. Failures render an error card instead of a
  * broken image, with `no-store` so they are not cached for four hours.
  *
  * Commit totals are lifetime, not trailing-year. `contributionsCollection`
@@ -143,6 +145,23 @@ export function aggregateLanguages(repositories, { exclude = [], limit = 5 } = {
 }
 
 /**
+ * Optional allowlist. `ALLOWED_USERS` is a comma-separated list of handles;
+ * unset means "anyone", which is what you want locally and not what you want on
+ * a public deployment - without it, a stranger can spend your token's rate limit
+ * rendering cards for any account they like.
+ *
+ * @param {string} username
+ * @returns {boolean}
+ */
+export function isAllowedUser(username) {
+  const allowed = (process.env.ALLOWED_USERS ?? '')
+    .split(',')
+    .map((entry) => entry.trim().toLowerCase())
+    .filter(Boolean);
+  return allowed.length === 0 || allowed.includes(username.toLowerCase());
+}
+
+/**
  * Warm-lambda memo. Vercel reuses an instance for a while, so this saves the
  * GitHub round trips on bursts without any external cache.
  *
@@ -260,6 +279,11 @@ export default async function handler(req, res) {
 
   if (!username) {
     sendError(res, query, 'Add ?username=your-github-handle');
+    return;
+  }
+
+  if (!isAllowedUser(username)) {
+    sendError(res, query, `"${username}" is not on this instance's allowlist`);
     return;
   }
 

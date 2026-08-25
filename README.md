@@ -43,9 +43,16 @@ serverless invocation is a few milliseconds and the whole project installs zero 
 
 [![Deploy with Vercel](https://vercel.com/button)](https://vercel.com/new/clone?repository-url=https%3A%2F%2Fgithub.com%2Fyour-name%2Freadme-svg-generator&env=GITHUB_TOKEN&envDescription=GitHub%20token%20used%20by%20the%20stats%20card)
 
-Set `GITHUB_TOKEN` in the Vercel project settings if you want the stats card - the other two need
-nothing. A classic token with no scopes is enough for public data; add `repo` only if you want
-private contribution counts included.
+`.env` is never deployed - Git deploys ship only committed files, and `.env` is gitignored. Set the
+variables in the Vercel dashboard instead: Project -> Settings -> Environment Variables, then
+redeploy (they bind at build time, so an existing deployment will not pick them up).
+
+| Variable | Required | Purpose |
+| --- | --- | --- |
+| `GITHUB_TOKEN` | for `/api/stats` | A classic token with no scopes covers public data. Add `repo` only if you want private repos and private contributions counted - that also grants write access to every repo you own, so prefer the narrow token and set an expiry. |
+| `ALLOWED_USERS` | strongly recommended | Comma-separated handles `/api/stats` will render. **Without it a deployed instance is an open proxy to the GitHub API**: anyone who finds the URL can render cards for any account and spend your token's 5,000 requests/hour. |
+
+The `/api/card` and `/api/stack` routes never call GitHub, so neither variable affects them.
 
 ### Run locally
 
@@ -183,8 +190,8 @@ For anything still overrepresented, drop it outright:
 ![Stats](https://your-app.vercel.app/api/stats?username=octocat&exclude_langs=Jupyter%20Notebook,HTML)
 ```
 
-Failures (missing token, unknown user, GitHub outage) render a readable error card with
-`Cache-Control: no-store`, so a transient problem is not cached for four hours.
+Failures (missing token, unknown user, disallowed handle, GitHub outage) render a readable error
+card with `Cache-Control: no-store`, so a transient problem is not cached for four hours.
 
 ---
 

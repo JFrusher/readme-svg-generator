@@ -8,7 +8,7 @@
 
 import assert from 'node:assert/strict';
 
-import { aggregateLanguages, buildCommitsQuery, sumCommits } from './api/stats.js';
+import { aggregateLanguages, buildCommitsQuery, isAllowedUser, sumCommits } from './api/stats.js';
 import { renderStackCard } from './src/renderers/renderStackCard.js';
 import { renderStatsCard } from './src/renderers/renderStatsCard.js';
 import { renderStatusCard } from './src/renderers/renderStatusCard.js';
@@ -214,5 +214,17 @@ assert.ok(
 assert.deepEqual(aggregateLanguages([]), []);
 assert.deepEqual(aggregateLanguages([{ languages: { edges: [] } }]), [], 'empty repos are skipped');
 assert.equal(aggregateLanguages(mixed, { limit: 2 }).length, 2);
+
+// --- allowlist ------------------------------------------------------------
+
+delete process.env.ALLOWED_USERS;
+assert.equal(isAllowedUser('anyone'), true, 'unset means open, for local dev');
+process.env.ALLOWED_USERS = '';
+assert.equal(isAllowedUser('anyone'), true, 'empty means open too');
+process.env.ALLOWED_USERS = 'JFrusher, octocat';
+assert.equal(isAllowedUser('jfrusher'), true, 'case-insensitive');
+assert.equal(isAllowedUser('octocat'), true, 'whitespace around entries is trimmed');
+assert.equal(isAllowedUser('someone-else'), false, 'everyone else is refused');
+delete process.env.ALLOWED_USERS;
 
 console.log('All checks passed.');
