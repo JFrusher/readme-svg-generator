@@ -41,6 +41,7 @@ const METRICS = [
  * @property {boolean} [border]
  * @property {boolean} [showIcons] single-character markers beside each metric
  * @property {string[]} [hide] metric keys and/or `languages` to omit
+ * @property {string} [period] e.g. a year; shown in the title bar
  * @property {number} [width]
  * @property {boolean} [animate]
  */
@@ -58,6 +59,7 @@ export function renderStatsCard({
   border = true,
   showIcons = true,
   hide = [],
+  period = '',
   width = 495,
   animate = true
 }) {
@@ -68,7 +70,11 @@ export function renderStatsCard({
   const dividerColor = mixColor(theme.border, theme.bg, 0.35);
   const track = mixColor(theme.border, theme.bg, 0.55);
 
-  const rows = METRICS.filter((metric) => !hidden.has(metric.key));
+  const rows = METRICS.filter((metric) => !hidden.has(metric.key)).map((metric) =>
+    // Stars cannot be filtered by date, so say so rather than let a year label
+    // imply the count belongs to that year.
+    period && metric.key === 'stars' ? { ...metric, label: 'STARS (ALL TIME)' } : metric
+  );
   const visibleLanguages = hidden.has('languages') ? [] : languages.slice(0, 5);
 
   const parts = [];
@@ -152,7 +158,7 @@ export function renderStatsCard({
   }
 
   const height = Math.max(110, cursorY + 8);
-  const label = `${String(name || username).slice(0, 32)} / GITHUB STATS`.toUpperCase();
+  const label = `${String(name || username).slice(0, 32)} / GITHUB STATS${period ? ` / ${period}` : ''}`.toUpperCase();
 
   const body = [
     cardBackground({ width, height, theme, border }),

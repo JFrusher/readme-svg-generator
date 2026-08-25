@@ -2,8 +2,9 @@
  * GET /api/stats - GitHub metrics overview.
  *
  * Query parameters:
- *   username (required), theme, show_icons, border, hide, exclude_langs, width,
- *   animate, include_private, bg_color, text_color, accent_color, border_color
+ *   username (required), year, theme, show_icons, border, hide, exclude_langs,
+ *   width, animate, include_private, bg_color, text_color, accent_color,
+ *   border_color
  *
  * Needs a `GITHUB_TOKEN` with public read scope: the GraphQL API rejects
  * anonymous requests outright. A deployed instance is otherwise an open proxy
@@ -18,6 +19,7 @@
  */
 
 import { renderStatsCard } from '../src/renderers/renderStatsCard.js';
+import { yearWindow } from './heatmap.js';
 import { requireGitHubUser, sendErrorCard } from '../src/utils/errorCard.js';
 import { graphql, memoized } from '../src/utils/github.js';
 import { resolveTheme } from '../src/themes/index.js';
@@ -43,6 +45,33 @@ const PROFILE_QUERY = `query userStats($login: String!) {
       }
     }
   }
+}`;
+
+/**
+ * A single year, rather than a lifetime. Commits and repositories-contributed
+ * come from one `contributionsCollection`; PRs and issues come from search,
+ * which is the only way to date-filter them. Stars cannot be date-filtered at
+ * all, so they stay lifetime and the card says so.
+ */
+const YEAR_QUERY = `query yearStats($login: String!, $from: DateTime!, $to: DateTime!, $prQuery: String!, $issueQuery: String!) {
+  user(login: $login) {
+    name
+    contributionsCollection(from: $from, to: $to) {
+      totalCommitContributions
+      restrictedContributionsCount
+      totalRepositoriesWithContributedCommits
+    }
+    repositories(first: 100, ownerAffiliations: OWNER, isFork: false, orderBy: { field: STARGAZERS, direction: DESC }) {
+      nodes {
+        stargazerCount
+        languages(first: 8, orderBy: { field: SIZE, direction: DESC }) {
+          edges { size node { name color } }
+        }
+      }
+    }
+  }
+  prs: search(query: $prQuery, type: ISSUE) { issueCount }
+  issues: search(query: $issueQuery, type: ISSUE) { issueCount }
 }`;
 
 /**
@@ -144,6 +173,53 @@ export function aggregateLanguages(repositories, { exclude = [], limit = 5 } = {
 }
 
 /**
+ * One calendar year of stats.
+ *
+ * Search queries are passed as GraphQL variables rather than interpolated: the
+ * login is already validated and the dates are integers, but a query string
+ * built by concatenation is exactly the habit that eventually goes wrong.
+ *
+ * @param {string} login
+ * @param {string} token
+ * @param {string[]} excludeLangs
+ * @param {{ from: string, to: string, label: string }} window
+ */
+async function fetchYearStats(login, token, excludeLangs, window) {
+  const range = `${window.from.slice(0, 10)}..${window.to.slice(0, 10)}`;
+  const data = await graphql(
+    YEAR_QUERY,
+    {
+      login,
+      from: window.from,
+      to: window.to,
+      prQuery: `author:${login} type:pr created:${range}`,
+      issueQuery: `author:${login} type:issue created:${range}`
+    },
+    token
+  );
+
+  const user = data.user;
+  if (!user) throw new Error(`User "${login}" not found`);
+
+  const contributions = user.contributionsCollection;
+  const repositories = user.repositories.nodes ?? [];
+
+  return {
+    name: user.name || login,
+    stats: {
+      stars: repositories.reduce((sum, repo) => sum + (repo.stargazerCount ?? 0), 0),
+      commits:
+        contributions.totalCommitContributions + contributions.restrictedContributionsCount,
+      publicCommits: contributions.totalCommitContributions,
+      prs: data.prs?.issueCount ?? 0,
+      issues: data.issues?.issueCount ?? 0,
+      contributed: contributions.totalRepositoriesWithContributedCommits ?? 0
+    },
+    languages: aggregateLanguages(repositories, { exclude: excludeLangs })
+  };
+}
+
+/**
  * Fetch and reduce a user's stats.
  *
  * @param {string} login
@@ -152,8 +228,11 @@ export function aggregateLanguages(repositories, { exclude = [], limit = 5 } = {
  * @returns {Promise<{ name: string, stats: Record<string, number>, languages: Array<{ name: string, percent: number, color: string }> }>}
  * @throws {Error} when the token is rejected or the user does not exist
  */
-async function fetchStats(login, token, excludeLangs = []) {
-  return memoized(`stats|${login.toLowerCase()}|${excludeLangs.join(',').toLowerCase()}`, async () => {
+async function fetchStats(login, token, excludeLangs = [], window = { from: null, label: '' }) {
+  const key = `stats|${login.toLowerCase()}|${excludeLangs.join(',').toLowerCase()}|${window.label}`;
+  return memoized(key, async () => {
+  if (window.from) return fetchYearStats(login, token, excludeLangs, window);
+
   const profile = await graphql(PROFILE_QUERY, { login }, token);
   const user = profile.user;
   if (!user) {
@@ -202,7 +281,8 @@ export default async function handler(req, res) {
 
   try {
     const excludeLangs = parseList(query.exclude_langs, 12);
-    const { name, stats, languages } = await fetchStats(username, token, excludeLangs);
+    const window = yearWindow(query.year);
+    const { name, stats, languages } = await fetchStats(username, token, excludeLangs, window);
     const includePrivate = parseBoolean(query.include_private, true);
 
     const svg = renderStatsCard({
@@ -214,6 +294,7 @@ export default async function handler(req, res) {
       border: parseBoolean(query.border, true),
       showIcons: parseBoolean(query.show_icons, true),
       hide: parseList(query.hide, 8),
+      period: window.label,
       width: parseNumber(query.width, 495, 300, 1000),
       animate: parseBoolean(query.animate, true)
     });
