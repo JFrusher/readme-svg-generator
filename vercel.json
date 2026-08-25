@@ -18,6 +18,10 @@
     {
       "source": "/terminal",
       "destination": "/api/terminal"
+    },
+    {
+      "source": "/heatmap",
+      "destination": "/api/heatmap"
     }
   ],
   "headers": [

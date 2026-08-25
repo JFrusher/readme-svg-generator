@@ -9,9 +9,11 @@
 import assert from 'node:assert/strict';
 
 import { aggregateLanguages, buildCommitsQuery, sumCommits } from './api/stats.js';
+import { yearWindow } from './api/heatmap.js';
 import { isAllowedUser } from './src/utils/github.js';
 import { renderStackCard } from './src/renderers/renderStackCard.js';
 import { renderStatsCard } from './src/renderers/renderStatsCard.js';
+import { levelThresholds, renderHeatmapCard } from './src/renderers/renderHeatmapCard.js';
 import { renderStatusCard } from './src/renderers/renderStatusCard.js';
 import { renderTerminalCard } from './src/renderers/renderTerminalCard.js';
 import { resolveTheme, themes } from './src/themes/index.js';
@@ -262,5 +264,86 @@ assert.ok(drawn <= Math.floor((300 - 32) / 7.2), `line should be clipped to fit,
 assertInsideCard(longLine, 'clipped terminal card');
 
 assertWellFormed(renderTerminalCard({ lines: [], theme: themes.system }), 'empty terminal card');
+
+// --- heatmap card ---------------------------------------------------------
+
+/** 53 weeks of 7 days, with a plausible spread of activity. */
+function fakeCalendar(counts) {
+  const weeks = [];
+  let index = 0;
+  for (let w = 0; w < 53; w += 1) {
+    const week = [];
+    for (let d = 0; d < 7; d += 1) {
+      const day = new Date(Date.UTC(2025, 0, 1 + index));
+      week.push({ count: counts[index % counts.length], date: day.toISOString().slice(0, 10) });
+      index += 1;
+    }
+    weeks.push(week);
+  }
+  return weeks;
+}
+
+const heatmap = renderHeatmapCard({
+  username: 'octocat',
+  weeks: fakeCalendar([0, 0, 1, 3, 0, 12, 7]),
+  total: 1234,
+  theme: themes.system
+});
+assertWellFormed(heatmap, 'heatmap card');
+assertInsideCard(heatmap, 'heatmap card');
+assert.equal((heatmap.match(/<rect/g) ?? []).length >= 53 * 7, true, 'one square per day');
+assert.ok(heatmap.includes('1.2k CONTRIBUTIONS'.toUpperCase()), 'total in the title bar');
+assert.ok(heatmap.includes('LESS') && heatmap.includes('MORE'), 'legend drawn');
+assert.ok(!renderHeatmapCard({ username: 'x', weeks: fakeCalendar([1]), total: 1, theme: themes.system, legend: false }).includes('LESS'));
+
+// The grid must fit the card at any width, including awkward ones.
+for (const width of [300, 495, 721, 1200]) {
+  assertInsideCard(
+    renderHeatmapCard({ username: 'x', weeks: fakeCalendar([0, 5]), total: 5, theme: themes.system, width }),
+    `heatmap at ${width}px`
+  );
+}
+
+// Empty calendars must not divide by zero or crash.
+assertWellFormed(renderHeatmapCard({ username: 'x', weeks: [], total: 0, theme: themes.system }), 'empty heatmap');
+assertWellFormed(
+  renderHeatmapCard({ username: 'x', weeks: fakeCalendar([0]), total: 0, theme: themes.system }),
+  'all-zero heatmap'
+);
+
+// Thresholds must strictly increase, or two levels render identically.
+for (const counts of [[], [1], [1, 1, 1], [1, 2, 3, 4, 5, 100], [7, 7, 7, 9]]) {
+  const thresholds = levelThresholds(counts);
+  assert.equal(thresholds.length, 4);
+  for (let i = 1; i < thresholds.length; i += 1) {
+    assert.ok(thresholds[i] > thresholds[i - 1], `thresholds must increase, got ${thresholds}`);
+  }
+}
+
+// Every level must be visibly distinct from its neighbours, in every theme.
+for (const [themeName, theme] of Object.entries(themes)) {
+  const card = renderHeatmapCard({
+    username: 'x',
+    weeks: fakeCalendar([0, 1, 4, 9, 30]),
+    total: 44,
+    theme
+  });
+  const swatches = [...card.matchAll(/<rect x="[\d.]+" y="[\d.]+" width="\d+" height="\d+" fill="(#[0-9a-f]{6})"/g)]
+    .map((match) => match[1]);
+  const channels = (hex) => [1, 3, 5].map((i) => Number.parseInt(hex.slice(i, i + 2), 16));
+  for (let i = 1; i < swatches.length; i += 1) {
+    const [a, b] = [channels(swatches[i - 1]), channels(swatches[i])];
+    const distance = Math.max(...a.map((value, c) => Math.abs(value - b[c])));
+    assert.ok(distance >= 20, `${themeName}: levels ${swatches[i - 1]} and ${swatches[i]} are too close`);
+  }
+}
+
+const thisYear = new Date().getUTCFullYear();
+assert.equal(yearWindow('2024').from, '2024-01-01T00:00:00Z');
+assert.equal(yearWindow('2024').label, '2024');
+assert.equal(yearWindow(undefined).from, null, 'no year means the trailing twelve months');
+assert.equal(yearWindow('1999').from, null, 'out of range is ignored');
+assert.equal(yearWindow(String(thisYear + 5)).from, null, 'the future is ignored');
+assert.equal(yearWindow('2024; DROP').from, '2024-01-01T00:00:00Z', 'parsed as an integer, not interpolated');
 
 console.log('All checks passed.');
