@@ -173,12 +173,21 @@ export function tagBox({ text, x, y, theme, index = 0, bevel = false }) {
   const height = 20;
   const width = measureText(text, fontSize) + paddingX * 2;
 
-  const face = bevel ? mixColor(theme.bg, theme.text, 0.08) : 'none';
-  const highlight = mixColor(theme.bg, theme.text, bevel ? 0 : 0);
+  // A raised button needs a face darker than its highlight, or the highlight
+  // has nothing to sit against.
+  const face = bevel ? mixColor(theme.bg, theme.text, 0.14) : 'none';
+  const highlight = theme.bg;
   const shadow = mixColor(theme.bg, theme.text, 0.45);
 
-  // Inset by half a pixel so every 1px edge lands on a pixel, not between two.
-  const [left, top, right, bottom] = [x + 0.5, y + 0.5, x + width - 0.5, y + height - 0.5];
+  // The outline's 1px stroke straddles the rect edge, so the bevel has to sit a
+  // full pixel inside it - drawn on the edge itself it lands underneath the
+  // outline and is invisible, which is exactly what a raised button must not be.
+  const [left, top, right, bottom] = [
+    x + 1.5,
+    y + 1.5,
+    x + width - 1.5,
+    y + height - 1.5
+  ];
   const edges = bevel
     ? `      <path d="M${left} ${bottom} L${left} ${top} L${right} ${top}" fill="none" stroke="${highlight}" stroke-width="1" shape-rendering="crispEdges" />
       <path d="M${right} ${top} L${right} ${bottom} L${left} ${bottom}" fill="none" stroke="${shadow}" stroke-width="1" shape-rendering="crispEdges" />`
