@@ -1,0 +1,250 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="495" height="280" viewBox="0 0 495 280" role="img" aria-labelledby="cardTitle">
+  <title id="cardTitle">octocat GitHub statistics</title>
+  <rect x="1" y="1" width="493" height="278" fill="#ffffff" stroke="#000000" stroke-width="2" shape-rendering="crispEdges" />
+<style>
+    text { font-family: 'SF Mono', 'Cascadia Code', 'Courier New', Consolas, monospace; }
+    .title { font-size: 13px; font-weight: 700; fill: #000000; letter-spacing: 0.5px; }
+    .title-inverse { font-size: 13px; font-weight: 700; fill: #ffffff; letter-spacing: 0.5px; }
+    .body { font-size: 12px; font-weight: 400; fill: #000000; }
+    .dim { font-size: 11px; font-weight: 400; fill: #666666; }
+    .heading { font-size: 11px; font-weight: 700; fill: #666666; letter-spacing: 1px; }
+    .value { font-size: 12px; font-weight: 700; fill: #000000; }
+    .glyph { font-size: 12px; font-weight: 700; fill: #000000; }
+    
+    @keyframes reveal { from { opacity: 0; } to { opacity: 1; } }
+    @keyframes fill { from { transform: scaleX(0); } to { transform: scaleX(1); } }
+    @keyframes blink { 0%, 49% { opacity: 1; } 50%, 100% { opacity: 0; } }
+    .reveal { animation: reveal 0.01s steps(1, end) backwards; }
+    .meter { animation: fill 0.8s steps(12, end) backwards; transform-origin: left center; }
+    .blink { animation: blink 1.2s steps(1, end) infinite; }
+    @media (prefers-reduced-motion: reduce) {
+      .reveal, .meter, .blink { animation: none; }
+    }
+  </style>
+  <g class="reveal">
+    <rect x="2" y="2" width="491" height="22" fill="#000000" shape-rendering="crispEdges" />
+    <text class="title-inverse" x="10" y="13" dominant-baseline="central">THE OCTOCAT / GITHUB STATS</text>
+  </g>
+  <g>
+    <g class="reveal" style="animation-delay: 0.00s">
+      <text class="glyph" x="16" y="50">*</text>
+      <text class="body" x="32" y="50">TOTAL STARS</text>
+      <line x1="120" y1="45.5" x2="435" y2="45.5" stroke="#595959" stroke-width="1" stroke-dasharray="2,2" shape-rendering="crispEdges" />
+      <text class="value" x="479" y="50" text-anchor="end">12.5k</text>
+    </g>
+    <g class="reveal" style="animation-delay: 0.06s">
+      <text class="glyph" x="16" y="72">#</text>
+      <text class="body" x="32" y="72">TOTAL COMMITS</text>
+      <line x1="134" y1="67.5" x2="442" y2="67.5" stroke="#595959" stroke-width="1" stroke-dasharray="2,2" shape-rendering="crispEdges" />
+      <text class="value" x="479" y="72" text-anchor="end">3.4k</text>
+    </g>
+    <g class="reveal" style="animation-delay: 0.12s">
+      <text class="glyph" x="16" y="94">></text>
+      <text class="body" x="32" y="94">TOTAL PRS</text>
+      <line x1="105" y1="89.5" x2="449" y2="89.5" stroke="#595959" stroke-width="1" stroke-dasharray="2,2" shape-rendering="crispEdges" />
+      <text class="value" x="479" y="94" text-anchor="end">210</text>
+    </g>
+    <g class="reveal" style="animation-delay: 0.18s">
+      <text class="glyph" x="16" y="116">?</text>
+      <text class="body" x="32" y="116">TOTAL ISSUES</text>
+      <line x1="127" y1="111.5" x2="456" y2="111.5" stroke="#595959" stroke-width="1" stroke-dasharray="2,2" shape-rendering="crispEdges" />
+      <text class="value" x="479" y="116" text-anchor="end">88</text>
+    </g>
+    <g class="reveal" style="animation-delay: 0.24s">
+      <text class="glyph" x="16" y="138">~</text>
+      <text class="body" x="32" y="138">CONTRIBUTED TO</text>
+      <line x1="141" y1="133.5" x2="456" y2="133.5" stroke="#595959" stroke-width="1" stroke-dasharray="2,2" shape-rendering="crispEdges" />
+      <text class="value" x="479" y="138" text-anchor="end">14</text>
+    </g>
+    <line class="reveal" style="animation-delay: 0.30s" x1="16" y1="154.5" x2="479" y2="154.5" stroke="#595959" stroke-width="1" shape-rendering="crispEdges" />
+    <text class="heading reveal" style="animation-delay: 0.30s" x="16" y="176">LANGUAGES</text>
+    <g class="reveal" style="animation-delay: 0.36s">
+      <text class="body" x="16" y="196" font-size="11">TypeScript</text>
+    <g class="meter" style="animation-delay: 0.00s">
+      <rect x="98" y="187" width="6" height="9" fill="#000000" shape-rendering="crispEdges" />
+      <rect x="106" y="187" width="6" height="9" fill="#000000" shape-rendering="crispEdges" />
+      <rect x="114" y="187" width="6" height="9" fill="#000000" shape-rendering="crispEdges" />
+      <rect x="122" y="187" width="6" height="9" fill="#000000" shape-rendering="crispEdges" />
+      <rect x="130" y="187" width="6" height="9" fill="#000000" shape-rendering="crispEdges" />
+      <rect x="138" y="187" width="6" height="9" fill="#000000" shape-rendering="crispEdges" />
+      <rect x="146" y="187" width="6" height="9" fill="#000000" shape-rendering="crispEdges" />
+      <rect x="154" y="187" width="6" height="9" fill="#000000" shape-rendering="crispEdges" />
+      <rect x="162" y="187" width="6" height="9" fill="#000000" shape-rendering="crispEdges" />
+      <rect x="170" y="187" width="6" height="9" fill="#000000" shape-rendering="crispEdges" />
+      <rect x="178" y="187" width="6" height="9" fill="#000000" shape-rendering="crispEdges" />
+      <rect x="186" y="187" width="6" height="9" fill="#000000" shape-rendering="crispEdges" />
+      <rect x="194" y="187" width="6" height="9" fill="#000000" shape-rendering="crispEdges" />
+      <rect x="202" y="187" width="6" height="9" fill="#000000" shape-rendering="crispEdges" />
+      <rect x="210" y="187" width="6" height="9" fill="#000000" shape-rendering="crispEdges" />
+      <rect x="218" y="187" width="6" height="9" fill="#000000" shape-rendering="crispEdges" />
+      <rect x="226" y="187" width="6" height="9" fill="#000000" shape-rendering="crispEdges" />
+      <rect x="234" y="187" width="6" height="9" fill="#000000" shape-rendering="crispEdges" />
+      <rect x="242" y="187" width="6" height="9" fill="#8c8c8c" shape-rendering="crispEdges" />
+      <rect x="250" y="187" width="6" height="9" fill="#8c8c8c" shape-rendering="crispEdges" />
+      <rect x="258" y="187" width="6" height="9" fill="#8c8c8c" shape-rendering="crispEdges" />
+      <rect x="266" y="187" width="6" height="9" fill="#8c8c8c" shape-rendering="crispEdges" />
+      <rect x="274" y="187" width="6" height="9" fill="#8c8c8c" shape-rendering="crispEdges" />
+      <rect x="282" y="187" width="6" height="9" fill="#8c8c8c" shape-rendering="crispEdges" />
+      <rect x="290" y="187" width="6" height="9" fill="#8c8c8c" shape-rendering="crispEdges" />
+      <rect x="298" y="187" width="6" height="9" fill="#8c8c8c" shape-rendering="crispEdges" />
+      <rect x="306" y="187" width="6" height="9" fill="#8c8c8c" shape-rendering="crispEdges" />
+      <rect x="314" y="187" width="6" height="9" fill="#8c8c8c" shape-rendering="crispEdges" />
+      <rect x="322" y="187" width="6" height="9" fill="#8c8c8c" shape-rendering="crispEdges" />
+      <rect x="330" y="187" width="6" height="9" fill="#8c8c8c" shape-rendering="crispEdges" />
+      <rect x="338" y="187" width="6" height="9" fill="#8c8c8c" shape-rendering="crispEdges" />
+      <rect x="346" y="187" width="6" height="9" fill="#8c8c8c" shape-rendering="crispEdges" />
+      <rect x="354" y="187" width="6" height="9" fill="#8c8c8c" shape-rendering="crispEdges" />
+      <rect x="362" y="187" width="6" height="9" fill="#8c8c8c" shape-rendering="crispEdges" />
+      <rect x="370" y="187" width="6" height="9" fill="#8c8c8c" shape-rendering="crispEdges" />
+      <rect x="378" y="187" width="6" height="9" fill="#8c8c8c" shape-rendering="crispEdges" />
+      <rect x="386" y="187" width="6" height="9" fill="#8c8c8c" shape-rendering="crispEdges" />
+      <rect x="394" y="187" width="6" height="9" fill="#8c8c8c" shape-rendering="crispEdges" />
+      <rect x="402" y="187" width="6" height="9" fill="#8c8c8c" shape-rendering="crispEdges" />
+      <rect x="410" y="187" width="6" height="9" fill="#8c8c8c" shape-rendering="crispEdges" />
+      <rect x="418" y="187" width="6" height="9" fill="#8c8c8c" shape-rendering="crispEdges" />
+    </g>
+      <text class="value" x="479" y="196" text-anchor="end" font-size="11">44.2%</text>
+    </g>
+    <g class="reveal" style="animation-delay: 0.42s">
+      <text class="body" x="16" y="216" font-size="11">Go</text>
+    <g class="meter" style="animation-delay: 0.05s">
+      <rect x="98" y="207" width="6" height="9" fill="#000000" shape-rendering="crispEdges" />
+      <rect x="106" y="207" width="6" height="9" fill="#000000" shape-rendering="crispEdges" />
+      <rect x="114" y="207" width="6" height="9" fill="#000000" shape-rendering="crispEdges" />
+      <rect x="122" y="207" width="6" height="9" fill="#000000" shape-rendering="crispEdges" />
+      <rect x="130" y="207" width="6" height="9" fill="#000000" shape-rendering="crispEdges" />
+      <rect x="138" y="207" width="6" height="9" fill="#000000" shape-rendering="crispEdges" />
+      <rect x="146" y="207" width="6" height="9" fill="#000000" shape-rendering="crispEdges" />
+      <rect x="154" y="207" width="6" height="9" fill="#000000" shape-rendering="crispEdges" />
+      <rect x="162" y="207" width="6" height="9" fill="#000000" shape-rendering="crispEdges" />
+      <rect x="170" y="207" width="6" height="9" fill="#000000" shape-rendering="crispEdges" />
+      <rect x="178" y="207" width="6" height="9" fill="#000000" shape-rendering="crispEdges" />
+      <rect x="186" y="207" width="6" height="9" fill="#000000" shape-rendering="crispEdges" />
+      <rect x="194" y="207" width="6" height="9" fill="#8c8c8c" shape-rendering="crispEdges" />
+      <rect x="202" y="207" width="6" height="9" fill="#8c8c8c" shape-rendering="crispEdges" />
+      <rect x="210" y="207" width="6" height="9" fill="#8c8c8c" shape-rendering="crispEdges" />
+      <rect x="218" y="207" width="6" height="9" fill="#8c8c8c" shape-rendering="crispEdges" />
+      <rect x="226" y="207" width="6" height="9" fill="#8c8c8c" shape-rendering="crispEdges" />
+      <rect x="234" y="207" width="6" height="9" fill="#8c8c8c" shape-rendering="crispEdges" />
+      <rect x="242" y="207" width="6" height="9" fill="#8c8c8c" shape-rendering="crispEdges" />
+      <rect x="250" y="207" width="6" height="9" fill="#8c8c8c" shape-rendering="crispEdges" />
+      <rect x="258" y="207" width="6" height="9" fill="#8c8c8c" shape-rendering="crispEdges" />
+      <rect x="266" y="207" width="6" height="9" fill="#8c8c8c" shape-rendering="crispEdges" />
+      <rect x="274" y="207" width="6" height="9" fill="#8c8c8c" shape-rendering="crispEdges" />
+      <rect x="282" y="207" width="6" height="9" fill="#8c8c8c" shape-rendering="crispEdges" />
+      <rect x="290" y="207" width="6" height="9" fill="#8c8c8c" shape-rendering="crispEdges" />
+      <rect x="298" y="207" width="6" height="9" fill="#8c8c8c" shape-rendering="crispEdges" />
+      <rect x="306" y="207" width="6" height="9" fill="#8c8c8c" shape-rendering="crispEdges" />
+      <rect x="314" y="207" width="6" height="9" fill="#8c8c8c" shape-rendering="crispEdges" />
+      <rect x="322" y="207" width="6" height="9" fill="#8c8c8c" shape-rendering="crispEdges" />
+      <rect x="330" y="207" width="6" height="9" fill="#8c8c8c" shape-rendering="crispEdges" />
+      <rect x="338" y="207" width="6" height="9" fill="#8c8c8c" shape-rendering="crispEdges" />
+      <rect x="346" y="207" width="6" height="9" fill="#8c8c8c" shape-rendering="crispEdges" />
+      <rect x="354" y="207" width="6" height="9" fill="#8c8c8c" shape-rendering="crispEdges" />
+      <rect x="362" y="207" width="6" height="9" fill="#8c8c8c" shape-rendering="crispEdges" />
+      <rect x="370" y="207" width="6" height="9" fill="#8c8c8c" shape-rendering="crispEdges" />
+      <rect x="378" y="207" width="6" height="9" fill="#8c8c8c" shape-rendering="crispEdges" />
+      <rect x="386" y="207" width="6" height="9" fill="#8c8c8c" shape-rendering="crispEdges" />
+      <rect x="394" y="207" width="6" height="9" fill="#8c8c8c" shape-rendering="crispEdges" />
+      <rect x="402" y="207" width="6" height="9" fill="#8c8c8c" shape-rendering="crispEdges" />
+      <rect x="410" y="207" width="6" height="9" fill="#8c8c8c" shape-rendering="crispEdges" />
+      <rect x="418" y="207" width="6" height="9" fill="#8c8c8c" shape-rendering="crispEdges" />
+    </g>
+      <text class="value" x="479" y="216" text-anchor="end" font-size="11">28.6%</text>
+    </g>
+    <g class="reveal" style="animation-delay: 0.48s">
+      <text class="body" x="16" y="236" font-size="11">Python</text>
+    <g class="meter" style="animation-delay: 0.10s">
+      <rect x="98" y="227" width="6" height="9" fill="#000000" shape-rendering="crispEdges" />
+      <rect x="106" y="227" width="6" height="9" fill="#000000" shape-rendering="crispEdges" />
+      <rect x="114" y="227" width="6" height="9" fill="#000000" shape-rendering="crispEdges" />
+      <rect x="122" y="227" width="6" height="9" fill="#000000" shape-rendering="crispEdges" />
+      <rect x="130" y="227" width="6" height="9" fill="#000000" shape-rendering="crispEdges" />
+      <rect x="138" y="227" width="6" height="9" fill="#000000" shape-rendering="crispEdges" />
+      <rect x="146" y="227" width="6" height="9" fill="#000000" shape-rendering="crispEdges" />
+      <rect x="154" y="227" width="6" height="9" fill="#8c8c8c" shape-rendering="crispEdges" />
+      <rect x="162" y="227" width="6" height="9" fill="#8c8c8c" shape-rendering="crispEdges" />
+      <rect x="170" y="227" width="6" height="9" fill="#8c8c8c" shape-rendering="crispEdges" />
+      <rect x="178" y="227" width="6" height="9" fill="#8c8c8c" shape-rendering="crispEdges" />
+      <rect x="186" y="227" width="6" height="9" fill="#8c8c8c" shape-rendering="crispEdges" />
+      <rect x="194" y="227" width="6" height="9" fill="#8c8c8c" shape-rendering="crispEdges" />
+      <rect x="202" y="227" width="6" height="9" fill="#8c8c8c" shape-rendering="crispEdges" />
+      <rect x="210" y="227" width="6" height="9" fill="#8c8c8c" shape-rendering="crispEdges" />
+      <rect x="218" y="227" width="6" height="9" fill="#8c8c8c" shape-rendering="crispEdges" />
+      <rect x="226" y="227" width="6" height="9" fill="#8c8c8c" shape-rendering="crispEdges" />
+      <rect x="234" y="227" width="6" height="9" fill="#8c8c8c" shape-rendering="crispEdges" />
+      <rect x="242" y="227" width="6" height="9" fill="#8c8c8c" shape-rendering="crispEdges" />
+      <rect x="250" y="227" width="6" height="9" fill="#8c8c8c" shape-rendering="crispEdges" />
+      <rect x="258" y="227" width="6" height="9" fill="#8c8c8c" shape-rendering="crispEdges" />
+      <rect x="266" y="227" width="6" height="9" fill="#8c8c8c" shape-rendering="crispEdges" />
+      <rect x="274" y="227" width="6" height="9" fill="#8c8c8c" shape-rendering="crispEdges" />
+      <rect x="282" y="227" width="6" height="9" fill="#8c8c8c" shape-rendering="crispEdges" />
+      <rect x="290" y="227" width="6" height="9" fill="#8c8c8c" shape-rendering="crispEdges" />
+      <rect x="298" y="227" width="6" height="9" fill="#8c8c8c" shape-rendering="crispEdges" />
+      <rect x="306" y="227" width="6" height="9" fill="#8c8c8c" shape-rendering="crispEdges" />
+      <rect x="314" y="227" width="6" height="9" fill="#8c8c8c" shape-rendering="crispEdges" />
+      <rect x="322" y="227" width="6" height="9" fill="#8c8c8c" shape-rendering="crispEdges" />
+      <rect x="330" y="227" width="6" height="9" fill="#8c8c8c" shape-rendering="crispEdges" />
+      <rect x="338" y="227" width="6" height="9" fill="#8c8c8c" shape-rendering="crispEdges" />
+      <rect x="346" y="227" width="6" height="9" fill="#8c8c8c" shape-rendering="crispEdges" />
+      <rect x="354" y="227" width="6" height="9" fill="#8c8c8c" shape-rendering="crispEdges" />
+      <rect x="362" y="227" width="6" height="9" fill="#8c8c8c" shape-rendering="crispEdges" />
+      <rect x="370" y="227" width="6" height="9" fill="#8c8c8c" shape-rendering="crispEdges" />
+      <rect x="378" y="227" width="6" height="9" fill="#8c8c8c" shape-rendering="crispEdges" />
+      <rect x="386" y="227" width="6" height="9" fill="#8c8c8c" shape-rendering="crispEdges" />
+      <rect x="394" y="227" width="6" height="9" fill="#8c8c8c" shape-rendering="crispEdges" />
+      <rect x="402" y="227" width="6" height="9" fill="#8c8c8c" shape-rendering="crispEdges" />
+      <rect x="410" y="227" width="6" height="9" fill="#8c8c8c" shape-rendering="crispEdges" />
+      <rect x="418" y="227" width="6" height="9" fill="#8c8c8c" shape-rendering="crispEdges" />
+    </g>
+      <text class="value" x="479" y="236" text-anchor="end" font-size="11">17.1%</text>
+    </g>
+    <g class="reveal" style="animation-delay: 0.54s">
+      <text class="body" x="16" y="256" font-size="11">Shell</text>
+    <g class="meter" style="animation-delay: 0.15s">
+      <rect x="98" y="247" width="6" height="9" fill="#000000" shape-rendering="crispEdges" />
+      <rect x="106" y="247" width="6" height="9" fill="#000000" shape-rendering="crispEdges" />
+      <rect x="114" y="247" width="6" height="9" fill="#000000" shape-rendering="crispEdges" />
+      <rect x="122" y="247" width="6" height="9" fill="#000000" shape-rendering="crispEdges" />
+      <rect x="130" y="247" width="6" height="9" fill="#8c8c8c" shape-rendering="crispEdges" />
+      <rect x="138" y="247" width="6" height="9" fill="#8c8c8c" shape-rendering="crispEdges" />
+      <rect x="146" y="247" width="6" height="9" fill="#8c8c8c" shape-rendering="crispEdges" />
+      <rect x="154" y="247" width="6" height="9" fill="#8c8c8c" shape-rendering="crispEdges" />
+      <rect x="162" y="247" width="6" height="9" fill="#8c8c8c" shape-rendering="crispEdges" />
+      <rect x="170" y="247" width="6" height="9" fill="#8c8c8c" shape-rendering="crispEdges" />
+      <rect x="178" y="247" width="6" height="9" fill="#8c8c8c" shape-rendering="crispEdges" />
+      <rect x="186" y="247" width="6" height="9" fill="#8c8c8c" shape-rendering="crispEdges" />
+      <rect x="194" y="247" width="6" height="9" fill="#8c8c8c" shape-rendering="crispEdges" />
+      <rect x="202" y="247" width="6" height="9" fill="#8c8c8c" shape-rendering="crispEdges" />
+      <rect x="210" y="247" width="6" height="9" fill="#8c8c8c" shape-rendering="crispEdges" />
+      <rect x="218" y="247" width="6" height="9" fill="#8c8c8c" shape-rendering="crispEdges" />
+      <rect x="226" y="247" width="6" height="9" fill="#8c8c8c" shape-rendering="crispEdges" />
+      <rect x="234" y="247" width="6" height="9" fill="#8c8c8c" shape-rendering="crispEdges" />
+      <rect x="242" y="247" width="6" height="9" fill="#8c8c8c" shape-rendering="crispEdges" />
+      <rect x="250" y="247" width="6" height="9" fill="#8c8c8c" shape-rendering="crispEdges" />
+      <rect x="258" y="247" width="6" height="9" fill="#8c8c8c" shape-rendering="crispEdges" />
+      <rect x="266" y="247" width="6" height="9" fill="#8c8c8c" shape-rendering="crispEdges" />
+      <rect x="274" y="247" width="6" height="9" fill="#8c8c8c" shape-rendering="crispEdges" />
+      <rect x="282" y="247" width="6" height="9" fill="#8c8c8c" shape-rendering="crispEdges" />
+      <rect x="290" y="247" width="6" height="9" fill="#8c8c8c" shape-rendering="crispEdges" />
+      <rect x="298" y="247" width="6" height="9" fill="#8c8c8c" shape-rendering="crispEdges" />
+      <rect x="306" y="247" width="6" height="9" fill="#8c8c8c" shape-rendering="crispEdges" />
+      <rect x="314" y="247" width="6" height="9" fill="#8c8c8c" shape-rendering="crispEdges" />
+      <rect x="322" y="247" width="6" height="9" fill="#8c8c8c" shape-rendering="crispEdges" />
+      <rect x="330" y="247" width="6" height="9" fill="#8c8c8c" shape-rendering="crispEdges" />
+      <rect x="338" y="247" width="6" height="9" fill="#8c8c8c" shape-rendering="crispEdges" />
+      <rect x="346" y="247" width="6" height="9" fill="#8c8c8c" shape-rendering="crispEdges" />
+      <rect x="354" y="247" width="6" height="9" fill="#8c8c8c" shape-rendering="crispEdges" />
+      <rect x="362" y="247" width="6" height="9" fill="#8c8c8c" shape-rendering="crispEdges" />
+      <rect x="370" y="247" width="6" height="9" fill="#8c8c8c" shape-rendering="crispEdges" />
+      <rect x="378" y="247" width="6" height="9" fill="#8c8c8c" shape-rendering="crispEdges" />
+      <rect x="386" y="247" width="6" height="9" fill="#8c8c8c" shape-rendering="crispEdges" />
+      <rect x="394" y="247" width="6" height="9" fill="#8c8c8c" shape-rendering="crispEdges" />
+      <rect x="402" y="247" width="6" height="9" fill="#8c8c8c" shape-rendering="crispEdges" />
+      <rect x="410" y="247" width="6" height="9" fill="#8c8c8c" shape-rendering="crispEdges" />
+      <rect x="418" y="247" width="6" height="9" fill="#8c8c8c" shape-rendering="crispEdges" />
+    </g>
+      <text class="value" x="479" y="256" text-anchor="end" font-size="11">10.1%</text>
+    </g>
+  </g>
+</svg>

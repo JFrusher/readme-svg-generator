@@ -1,0 +1,671 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>readme-svg-generator - Card Builder v0.1</title>
+    <meta
+      name="description"
+      content="Build dynamic SVG stats, status and tech-stack cards for your GitHub profile README."
+    />
+    <link rel="icon" href="/favicon.ico" />
+    <style>
+      /* ---------------------------------------------------------------
+         Desktop metaphor: 1px rules, hard bevels, four greys, no curves.
+         --------------------------------------------------------------- */
+      :root {
+        --white: #ffffff;
+        --face: #e0e0e0;
+        --grey: #808080;
+        --black: #000000;
+      }
+
+      * {
+        box-sizing: border-box;
+        border-radius: 0;
+      }
+
+      html,
+      body {
+        margin: 0;
+        padding: 0;
+      }
+
+      body {
+        background: var(--grey);
+        color: var(--black);
+        font-family: 'Courier New', Courier, Monaco, monospace;
+        font-size: 13px;
+        line-height: 1.4;
+        padding: 16px;
+      }
+
+      /* --- Window chrome ------------------------------------------------ */
+
+      .window {
+        max-width: 1180px;
+        margin: 0 auto;
+        background: var(--face);
+        border: 1px solid var(--black);
+      }
+
+      .title-bar {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        height: 22px;
+        padding: 0 5px;
+        background: var(--black);
+        color: var(--white);
+        font-weight: 700;
+        font-size: 12px;
+        user-select: none;
+      }
+
+      .close-box {
+        width: 12px;
+        height: 12px;
+        flex: 0 0 12px;
+        padding: 0;
+        background: var(--white);
+        border: 1px solid var(--black);
+        position: relative;
+        cursor: pointer;
+      }
+
+      /* Two 1px rules crossed: an X drawn, not typeset. */
+      .close-box::before,
+      .close-box::after {
+        content: '';
+        position: absolute;
+        left: 1px;
+        right: 1px;
+        top: 4px;
+        height: 1px;
+        background: var(--black);
+      }
+      .close-box::before {
+        transform: rotate(45deg);
+      }
+      .close-box::after {
+        transform: rotate(-45deg);
+      }
+      .close-box:active {
+        background: var(--grey);
+      }
+
+      .title-bar h1 {
+        margin: 0;
+        font-size: 12px;
+        font-weight: 700;
+        letter-spacing: 0.5px;
+        text-transform: uppercase;
+      }
+
+      .menu-bar {
+        display: flex;
+        gap: 18px;
+        padding: 3px 8px;
+        border-bottom: 1px solid var(--black);
+        background: var(--face);
+        font-size: 12px;
+      }
+
+      .status-bar {
+        display: flex;
+        justify-content: space-between;
+        gap: 12px;
+        padding: 3px 8px;
+        border-top: 1px solid var(--black);
+        background: var(--face);
+        font-size: 11px;
+        white-space: nowrap;
+        overflow: hidden;
+      }
+
+      /* --- Layout -------------------------------------------------------- */
+
+      .split {
+        display: grid;
+        grid-template-columns: 320px minmax(0, 1fr);
+      }
+
+      .pane {
+        padding: 12px;
+      }
+
+      .pane + .pane {
+        border-left: 1px solid var(--black);
+      }
+
+      @media (max-width: 860px) {
+        .split {
+          grid-template-columns: 1fr;
+        }
+        .pane + .pane {
+          border-left: 0;
+          border-top: 1px solid var(--black);
+        }
+      }
+
+      /* --- Controls ------------------------------------------------------ */
+
+      fieldset {
+        border: 1px solid var(--black);
+        margin: 0 0 12px;
+        padding: 10px;
+      }
+
+      legend {
+        padding: 0 4px;
+        font-size: 11px;
+        font-weight: 700;
+        text-transform: uppercase;
+        letter-spacing: 1px;
+      }
+
+      label {
+        display: block;
+        margin-bottom: 8px;
+        font-size: 12px;
+      }
+
+      label:last-child {
+        margin-bottom: 0;
+      }
+
+      .field-label {
+        display: block;
+        margin-bottom: 3px;
+        font-size: 11px;
+        letter-spacing: 0.5px;
+        text-transform: uppercase;
+      }
+
+      input[type='text'],
+      textarea,
+      select {
+        width: 100%;
+        padding: 3px 5px;
+        font-family: inherit;
+        font-size: 12px;
+        color: var(--black);
+        background: var(--white);
+        /* Inset bevel: shadow top-left, highlight bottom-right, hard outline. */
+        border: 2px solid;
+        border-color: var(--grey) var(--white) var(--white) var(--grey);
+        outline: 1px solid var(--black);
+      }
+
+      textarea {
+        resize: vertical;
+        line-height: 1.5;
+      }
+
+      select {
+        background: var(--face);
+        border-color: var(--white) var(--grey) var(--grey) var(--white);
+      }
+
+      input[type='text']:focus,
+      textarea:focus,
+      select:focus {
+        outline: 2px solid var(--black);
+      }
+
+      input[type='color'] {
+        width: 100%;
+        height: 22px;
+        padding: 1px;
+        background: var(--white);
+        border: 1px solid var(--black);
+        cursor: pointer;
+      }
+
+      input[type='range'] {
+        width: 100%;
+        height: 18px;
+        margin: 2px 0 0;
+        accent-color: var(--black);
+      }
+
+      /* Square checkbox with a typed X, the way a form is printed. */
+      input[type='checkbox'] {
+        appearance: none;
+        -webkit-appearance: none;
+        width: 13px;
+        height: 13px;
+        margin: 0 6px 0 0;
+        vertical-align: -2px;
+        background: var(--white);
+        border: 1px solid var(--black);
+        position: relative;
+        cursor: pointer;
+      }
+
+      input[type='checkbox']:checked::after {
+        content: 'X';
+        position: absolute;
+        inset: 0;
+        font-size: 11px;
+        font-weight: 700;
+        line-height: 11px;
+        text-align: center;
+      }
+
+      input[type='checkbox']:active {
+        background: var(--face);
+      }
+
+      .check-grid {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 2px 8px;
+      }
+
+      .color-grid {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 8px;
+      }
+
+      .hidden {
+        display: none;
+      }
+
+      /* --- Buttons ------------------------------------------------------- */
+
+      button {
+        padding: 3px 12px;
+        font-family: inherit;
+        font-size: 12px;
+        color: var(--black);
+        background: var(--face);
+        cursor: pointer;
+        /* Outset bevel: highlight top-left, shadow bottom-right. */
+        border: 2px solid;
+        border-color: var(--white) var(--black) var(--black) var(--white);
+      }
+
+      button:active,
+      button.is-active {
+        background: var(--white);
+        border-color: var(--black) var(--white) var(--white) var(--black);
+      }
+
+      .tabs {
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        gap: 4px;
+        margin-bottom: 12px;
+      }
+
+      /* --- Workspace ----------------------------------------------------- */
+
+      .workspace {
+        display: flex;
+        flex-direction: column;
+        min-height: 340px;
+        height: 100%;
+      }
+
+      .canvas {
+        flex: 1;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        padding: 20px;
+        overflow: auto;
+        background: var(--grey);
+        border: 2px solid;
+        border-color: var(--grey) var(--white) var(--white) var(--grey);
+        outline: 1px solid var(--black);
+      }
+
+      .canvas img {
+        display: block;
+        max-width: 100%;
+        height: auto;
+      }
+
+      .canvas .error {
+        margin: 0;
+        color: var(--white);
+        font-size: 12px;
+      }
+
+      .toolbar {
+        display: flex;
+        align-items: center;
+        justify-content: flex-end;
+        gap: 8px;
+        margin-top: 12px;
+      }
+
+      .toolbar .note {
+        margin-right: auto;
+        font-size: 11px;
+      }
+
+      .output {
+        margin-top: 12px;
+      }
+
+      .out-head {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 8px;
+        margin-bottom: 4px;
+      }
+
+      .out-head h2 {
+        margin: 0;
+        font-size: 11px;
+        font-weight: 700;
+        letter-spacing: 1px;
+        text-transform: uppercase;
+      }
+
+      .out-head button {
+        padding: 0 8px;
+        font-size: 11px;
+      }
+
+      .output pre {
+        margin: 0 0 10px;
+        padding: 6px 8px;
+        max-height: 84px;
+        overflow: auto;
+        background: var(--white);
+        border: 1px solid var(--black);
+        font-family: inherit;
+        font-size: 11px;
+        white-space: pre-wrap;
+        word-break: break-all;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="window">
+      <div class="title-bar">
+        <button class="close-box" type="button" aria-label="Close" title="Close"></button>
+        <h1>readme-svg-generator - Card Builder v0.1</h1>
+      </div>
+
+      <div class="menu-bar" aria-hidden="true">
+        <span>File</span><span>Edit</span><span>Cards</span><span>Themes</span><span>Help</span>
+      </div>
+
+      <div class="split">
+        <!-- ===================== Controls ===================== -->
+        <section class="pane">
+          <div class="tabs" role="tablist" aria-label="Card type">
+            <button type="button" class="tab" data-endpoint="card">STATUS</button>
+            <button type="button" class="tab" data-endpoint="stack">STACK</button>
+            <button type="button" class="tab" data-endpoint="stats">STATS</button>
+          </div>
+
+          <fieldset data-fields="card">
+            <legend>Status card</legend>
+            <label>
+              <span class="field-label">Title</span>
+              <input type="text" id="card-title" value="Available for work" />
+            </label>
+            <label>
+              <span class="field-label">Subtitle</span>
+              <input type="text" id="card-subtitle" value="Backend, platform and dev tooling" />
+            </label>
+            <label>
+              <span class="field-label">Window label</span>
+              <input type="text" id="card-label" value="STATUS" />
+            </label>
+            <label><input type="checkbox" id="card-pulse" checked /> Blinking indicator</label>
+            <label>
+              <span class="field-label">Indicator colour</span>
+              <input type="color" id="card-pulse-color" value="#000000" />
+            </label>
+          </fieldset>
+
+          <fieldset data-fields="stack" class="hidden">
+            <legend>Stack card</legend>
+            <label>
+              <span class="field-label">Title</span>
+              <input type="text" id="stack-title" value="TECH STACK" />
+            </label>
+            <label>
+              <span class="field-label">One category per line - NAME: item, item</span>
+              <textarea id="stack-categories" rows="6">
+Languages: TypeScript, Go, Python, SQL
+Frameworks: Next.js, FastAPI, Svelte
+Tools: Docker, Terraform, Actions</textarea
+              >
+            </label>
+          </fieldset>
+
+          <fieldset data-fields="stats" class="hidden">
+            <legend>Stats card</legend>
+            <label>
+              <span class="field-label">GitHub username</span>
+              <input type="text" id="stats-username" value="octocat" />
+            </label>
+            <label><input type="checkbox" id="stats-icons" checked /> Show markers</label>
+            <span class="field-label">Hide fields</span>
+            <div class="check-grid">
+              <label><input type="checkbox" class="hide-field" value="stars" /> Stars</label>
+              <label><input type="checkbox" class="hide-field" value="commits" /> Commits</label>
+              <label><input type="checkbox" class="hide-field" value="prs" /> PRs</label>
+              <label><input type="checkbox" class="hide-field" value="issues" /> Issues</label>
+              <label><input type="checkbox" class="hide-field" value="contributed" /> Contrib</label>
+              <label><input type="checkbox" class="hide-field" value="languages" /> Langs</label>
+            </div>
+          </fieldset>
+
+          <fieldset>
+            <legend>Options</legend>
+            <label>
+              <span class="field-label">Theme</span>
+              <select id="theme">
+                <option value="system">system</option>
+                <option value="dark">dark</option>
+                <option value="light">light</option>
+                <option value="dracula">dracula</option>
+                <option value="catppuccin">catppuccin</option>
+                <option value="tokyo-night">tokyo-night</option>
+              </select>
+            </label>
+            <label>
+              <span class="field-label">Width: <span id="width-value">495</span> px</span>
+              <input type="range" id="width" min="250" max="900" step="5" value="495" />
+            </label>
+            <label><input type="checkbox" id="border" checked /> Border</label>
+            <label><input type="checkbox" id="animate" checked /> Animate</label>
+            <label><input type="checkbox" id="custom-colors" /> Custom colours</label>
+            <div id="color-overrides" class="color-grid hidden">
+              <label>
+                <span class="field-label">Back</span>
+                <input type="color" id="bg_color" value="#ffffff" />
+              </label>
+              <label>
+                <span class="field-label">Text</span>
+                <input type="color" id="text_color" value="#000000" />
+              </label>
+              <label>
+                <span class="field-label">Accent</span>
+                <input type="color" id="accent_color" value="#000000" />
+              </label>
+              <label>
+                <span class="field-label">Rule</span>
+                <input type="color" id="border_color" value="#000000" />
+              </label>
+            </div>
+          </fieldset>
+        </section>
+
+        <!-- ===================== Workspace ===================== -->
+        <section class="pane">
+          <div class="workspace">
+            <div class="canvas" id="preview"></div>
+
+            <div class="toolbar">
+              <span class="note" id="preview-note"></span>
+              <button type="button" data-copy="snippet-url">Copy URL</button>
+              <button type="button" data-copy="snippet-md">Copy Markdown</button>
+            </div>
+
+            <div class="output">
+              <div class="out-head">
+                <h2>Markdown</h2>
+                <button type="button" data-copy="snippet-md">COPY</button>
+              </div>
+              <pre id="snippet-md"></pre>
+
+              <div class="out-head">
+                <h2>HTML</h2>
+                <button type="button" data-copy="snippet-html">COPY</button>
+              </div>
+              <pre id="snippet-html"></pre>
+
+              <div class="out-head">
+                <h2>URL</h2>
+                <button type="button" data-copy="snippet-url">COPY</button>
+              </div>
+              <pre id="snippet-url"></pre>
+            </div>
+          </div>
+        </section>
+      </div>
+
+      <div class="status-bar">
+        <span id="status-route">READY</span>
+        <span id="status-cache">CACHE 4H</span>
+      </div>
+    </div>
+
+    <script>
+      const $ = (id) => document.getElementById(id);
+      const origin = window.location.origin;
+      const ALT = { card: 'Status card', stack: 'Tech stack', stats: 'GitHub stats' };
+      let endpoint = 'card';
+
+      /** Read every control into the query object for the active endpoint. */
+      function buildParams() {
+        const params = new URLSearchParams();
+
+        if (endpoint === 'card') {
+          params.set('title', $('card-title').value);
+          if ($('card-subtitle').value) params.set('subtitle', $('card-subtitle').value);
+          if ($('card-label').value) params.set('label', $('card-label').value);
+          params.set('pulse', String($('card-pulse').checked));
+          if ($('card-pulse').checked) {
+            params.set('pulse_color', $('card-pulse-color').value.replace('#', ''));
+          }
+        }
+
+        if (endpoint === 'stack') {
+          params.set('title', $('stack-title').value);
+          const names = [];
+          for (const line of $('stack-categories').value.split('\n')) {
+            const [rawName, rawItems] = line.split(':');
+            if (!rawName || !rawItems) continue;
+            const name = rawName.trim();
+            const items = rawItems
+              .split(',')
+              .map((item) => item.trim())
+              .filter(Boolean);
+            if (!name || items.length === 0) continue;
+            names.push(name);
+            params.set(name, items.join(','));
+          }
+          if (names.length) params.set('categories', names.join(','));
+        }
+
+        if (endpoint === 'stats') {
+          params.set('username', $('stats-username').value.trim());
+          params.set('show_icons', String($('stats-icons').checked));
+          const hidden = [...document.querySelectorAll('.hide-field:checked')].map((b) => b.value);
+          if (hidden.length) params.set('hide', hidden.join(','));
+        }
+
+        params.set('theme', $('theme').value);
+        params.set('width', $('width').value);
+        if (!$('border').checked) params.set('border', 'false');
+        if (!$('animate').checked) params.set('animate', 'false');
+
+        if ($('custom-colors').checked) {
+          for (const key of ['bg_color', 'text_color', 'accent_color', 'border_color']) {
+            params.set(key, $(key).value.replace('#', ''));
+          }
+        }
+
+        return params;
+      }
+
+      function render() {
+        const url = `${origin}/api/${endpoint}?${buildParams().toString()}`;
+        const alt = ALT[endpoint];
+
+        const img = new Image();
+        img.src = url;
+        img.alt = alt;
+        img.onerror = () => {
+          const message = document.createElement('p');
+          message.className = 'error';
+          message.textContent = '! preview failed - is the dev server running?';
+          $('preview').replaceChildren(message);
+        };
+        $('preview').replaceChildren(img);
+
+        $('snippet-md').textContent = `![${alt}](${url})`;
+        $('snippet-html').textContent = `<img src="${url}" alt="${alt}" />`;
+        $('snippet-url').textContent = url;
+
+        $('status-route').textContent =
+          `GET /api/${endpoint} - ${$('width').value}PX - ${$('theme').value.toUpperCase()}`;
+        $('preview-note').textContent =
+          endpoint === 'stats' ? 'stats needs GITHUB_TOKEN on the server' : '';
+      }
+
+      function selectEndpoint(next) {
+        endpoint = next;
+        for (const tab of document.querySelectorAll('.tab')) {
+          tab.classList.toggle('is-active', tab.dataset.endpoint === next);
+        }
+        for (const set of document.querySelectorAll('[data-fields]')) {
+          set.classList.toggle('hidden', set.dataset.fields !== next);
+        }
+        render();
+      }
+
+      document.addEventListener('input', (event) => {
+        if (event.target.id === 'width') $('width-value').textContent = $('width').value;
+        if (event.target.id === 'custom-colors') {
+          $('color-overrides').classList.toggle('hidden', !$('custom-colors').checked);
+        }
+        render();
+      });
+
+      document.addEventListener('click', (event) => {
+        const tab = event.target.closest('.tab');
+        if (tab) selectEndpoint(tab.dataset.endpoint);
+
+        const copy = event.target.closest('[data-copy]');
+        if (copy) {
+          navigator.clipboard.writeText($(copy.dataset.copy).textContent).then(() => {
+            const original = copy.textContent;
+            copy.textContent = 'COPIED';
+            setTimeout(() => {
+              copy.textContent = original;
+            }, 1000);
+          });
+        }
+
+        if (event.target.closest('.close-box')) {
+          $('status-route').textContent = 'CANNOT CLOSE - THIS IS THE ONLY WINDOW';
+        }
+      });
+
+      selectEndpoint('card');
+    </script>
+  </body>
+</html>

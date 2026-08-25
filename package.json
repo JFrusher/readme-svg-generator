@@ -1,0 +1,28 @@
+{
+  "name": "readme-svg-generator",
+  "version": "1.0.0",
+  "description": "Serverless SVG stats, status and tech-stack cards for GitHub profile READMEs. No headless browser, no dependencies.",
+  "type": "module",
+  "license": "MIT",
+  "engines": {
+    "node": ">=18"
+  },
+  "scripts": {
+    "dev": "node --env-file-if-exists=.env dev-server.js",
+    "dev:vercel": "npx vercel dev",
+    "start": "node --env-file-if-exists=.env dev-server.js",
+    "test": "node test.js"
+  },
+  "keywords": [
+    "svg",
+    "github",
+    "readme",
+    "profile",
+    "stats",
+    "badges",
+    "serverless",
+    "vercel"
+  ],
+  "dependencies": {},
+  "devDependencies": {}
+}
