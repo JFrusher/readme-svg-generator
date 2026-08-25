@@ -8,6 +8,7 @@
 
 import assert from 'node:assert/strict';
 
+import { aggregateLanguages, buildCommitsQuery, sumCommits } from './api/stats.js';
 import { renderStackCard } from './src/renderers/renderStackCard.js';
 import { renderStatsCard } from './src/renderers/renderStatsCard.js';
 import { renderStatusCard } from './src/renderers/renderStatusCard.js';
@@ -143,5 +144,75 @@ const clamped = renderStatsCard({
   languages: [{ name: 'Weird', percent: 480 }]
 });
 assertInsideCard(clamped, 'clamped meter');
+
+// --- lifetime commit totals -----------------------------------------------
+
+const commitsQuery = buildCommitsQuery([2021, 2019, 2020]);
+assert.ok(commitsQuery.includes('y2019: contributionsCollection(from: "2019-01-01T00:00:00Z"'));
+assert.ok(commitsQuery.includes('y2021:'), 'every year gets an alias');
+assert.equal(commitsQuery.indexOf('y2019') < commitsQuery.indexOf('y2020'), true, 'years in order');
+assert.equal(buildCommitsQuery([]), null, 'no years means no second request');
+assert.equal(
+  buildCommitsQuery(['2019" } evil { x', 1.5, 1900, 9999]),
+  null,
+  'only plain in-range integers may reach the query document'
+);
+
+assert.deepEqual(
+  sumCommits({
+    y2019: { totalCommitContributions: 10, restrictedContributionsCount: 5 },
+    y2020: { totalCommitContributions: 2, restrictedContributionsCount: 0 }
+  }),
+  { commits: 17, publicCommits: 12 },
+  'lifetime total sums every year, private included'
+);
+assert.deepEqual(sumCommits({}), { commits: 0, publicCommits: 0 });
+assert.deepEqual(sumCommits(null), { commits: 0, publicCommits: 0 });
+assert.deepEqual(
+  sumCommits({ y2019: { totalCommitContributions: 4 }, junk: null }),
+  { commits: 4, publicCommits: 4 },
+  'missing restricted counts and stray keys are tolerated'
+);
+
+// --- language breakdown ---------------------------------------------------
+
+/** One notebook repo whose bytes dwarf everything, plus 17 ordinary repos. */
+const notebookRepo = {
+  languages: { edges: [{ size: 40_000_000, node: { name: 'Jupyter Notebook', color: '#da5b0b' } }] }
+};
+const webRepo = {
+  languages: {
+    edges: [
+      { size: 60_000, node: { name: 'TypeScript', color: '#3178c6' } },
+      { size: 20_000, node: { name: 'CSS', color: '#663399' } }
+    ]
+  }
+};
+const mixed = [notebookRepo, ...Array.from({ length: 17 }, () => webRepo)];
+
+const byRepo = aggregateLanguages(mixed);
+const notebooks = byRepo.find((language) => language.name === 'Jupyter Notebook');
+const typescript = byRepo.find((language) => language.name === 'TypeScript');
+assert.ok(
+  notebooks.percent < 6,
+  `one bloated repo out of 18 must not dominate, got ${notebooks.percent.toFixed(1)}%`
+);
+assert.ok(typescript.percent > 60, `TypeScript should lead, got ${typescript.percent.toFixed(1)}%`);
+assert.ok(typescript.percent > notebooks.percent);
+
+// Byte-weighted aggregation - what this replaced - would have said 99%.
+const totalBytes = 40_000_000 + 17 * 80_000;
+assert.ok(40_000_000 / totalBytes > 0.96, 'sanity: the old weighting really was that skewed');
+
+const excluded = aggregateLanguages(mixed, { exclude: ['jupyter notebook'] });
+assert.ok(!excluded.some((language) => language.name === 'Jupyter Notebook'), 'exclude_langs drops it');
+assert.ok(
+  Math.abs(excluded.find((language) => language.name === 'TypeScript').percent - 75) < 0.01,
+  'excluding a language must not skew the repos that remain'
+);
+
+assert.deepEqual(aggregateLanguages([]), []);
+assert.deepEqual(aggregateLanguages([{ languages: { edges: [] } }]), [], 'empty repos are skipped');
+assert.equal(aggregateLanguages(mixed, { limit: 2 }).length, 2);
 
 console.log('All checks passed.');

@@ -129,19 +129,58 @@ Omitting `categories` works too - any parameter that is not a card option is tre
 Requires `GITHUB_TOKEN` on the server. Results are memoised for 10 minutes per warm instance on top
 of the 4 hour edge cache.
 
+Commit totals are **lifetime**, not trailing-year. A `contributionsCollection` covers at most one
+year, so the route makes two requests: one for the years the account has contributions in, then one
+that aliases a collection per year and sums them.
+
 | Parameter | Type | Default | Description |
 | --- | --- | --- | --- |
 | `username` | string | **required** | GitHub handle. Invalid handles render an error card. |
 | `show_icons` | boolean | `true` | Single-character marker (`*`, `#`, `>`, `?`, `~`) beside each metric. |
 | `hide` | comma list | *(none)* | Any of `stars`, `commits`, `prs`, `issues`, `contributed`, `languages`. |
-| `include_private` | boolean | `true` | Count restricted contributions in the commit total. |
+| `exclude_langs` | comma list | *(none)* | Language names to leave out of the breakdown, e.g. `Jupyter Notebook,HTML`. Case-insensitive, max 12. |
+| `include_private` | boolean | `true` | Count restricted contributions in the commit total. Needs a token with `repo` scope **and** "Include private contributions on my profile" enabled, or it is always 0. |
 | `width` | integer | `495` | 300-1000. |
 
-Metrics: total stars earned, total commits, total PRs, total issues, repositories contributed to,
+Metrics: total stars earned, lifetime commits, total PRs, total issues, repositories contributed to,
 plus the top five languages by bytes across non-fork repositories, drawn as segmented cell meters.
+
+What the numbers do and do not include:
+
+| Metric | Counts | Does not count |
+| --- | --- | --- |
+| Stars | Your top 100 owned, non-fork repos | Org-owned repos, forks, repos past the first 100 |
+| Commits | Every year the account has contributions in | Nothing - this is the lifetime total |
+| PRs / Issues | Everything you authored, anywhere, any state | - |
+| Contributed to | Repos you do not own that you committed to | Your own repos |
+| Languages | Each repo's own language split, averaged with every repo weighted equally | Repo size - a huge repo counts the same as a small one |
 
 ```markdown
 ![Stats](https://your-app.vercel.app/api/stats?username=octocat&theme=dracula&hide=issues)
+```
+
+#### Why the language bars are not byte-weighted
+
+GitHub reports language sizes in bytes, and bytes are a terrible proxy for what you write. A Jupyter
+notebook stores its output images base64-encoded inside the `.ipynb` file, so twenty notebooks can
+easily outweigh eighteen repositories of hand-written source:
+
+```text
+by bytes                     repos weighted equally
+Jupyter Notebook  96.7%      TypeScript        70.8%
+TypeScript         2.5%      CSS               23.6%
+CSS                0.8%      Jupyter Notebook   5.6%
+```
+
+So [`aggregateLanguages`](api/stats.js) works out each repository's own language split first, then
+averages those splits with every repository counting once. A single bloated repo can contribute at
+most `1 / repoCount`. Minified bundles, vendored dependencies and generated files are all defused the
+same way.
+
+For anything still overrepresented, drop it outright:
+
+```markdown
+![Stats](https://your-app.vercel.app/api/stats?username=octocat&exclude_langs=Jupyter%20Notebook,HTML)
 ```
 
 Failures (missing token, unknown user, GitHub outage) render a readable error card with
