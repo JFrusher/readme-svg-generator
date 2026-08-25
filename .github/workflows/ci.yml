@@ -1,0 +1,26 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        # 18 is the floor the package declares; 22 is what Vercel runs.
+        node: [18, 20, 22]
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: ${{ matrix.node }}
+      # No install step: the project has no dependencies, and keeping it that
+      # way is a feature. This fails the build if one ever sneaks in.
+      - name: Assert zero dependencies
+        run: node -e "const p=require('./package.json');const n=Object.keys({...p.dependencies,...p.devDependencies}).length;if(n)throw new Error(n+' dependency(ies) added');console.log('0 dependencies')"
+      - name: Run tests
+        run: npm test

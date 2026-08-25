@@ -8,7 +8,8 @@
 
 import assert from 'node:assert/strict';
 
-import { aggregateLanguages, buildCommitsQuery, isAllowedUser, sumCommits } from './api/stats.js';
+import { aggregateLanguages, buildCommitsQuery, sumCommits } from './api/stats.js';
+import { isAllowedUser } from './src/utils/github.js';
 import { renderStackCard } from './src/renderers/renderStackCard.js';
 import { renderStatsCard } from './src/renderers/renderStatsCard.js';
 import { renderStatusCard } from './src/renderers/renderStatusCard.js';

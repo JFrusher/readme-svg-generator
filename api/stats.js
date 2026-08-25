@@ -18,12 +18,11 @@
  */
 
 import { renderStatsCard } from '../src/renderers/renderStatsCard.js';
-import { renderStatusCard } from '../src/renderers/renderStatusCard.js';
+import { requireGitHubUser, sendErrorCard } from '../src/utils/errorCard.js';
+import { graphql, memoized } from '../src/utils/github.js';
 import { resolveTheme } from '../src/themes/index.js';
-import { parseBoolean, parseList, parseNumber, sanitizeUsername } from '../src/utils/sanitize.js';
+import { parseBoolean, parseList, parseNumber } from '../src/utils/sanitize.js';
 import { sendSvg } from '../src/utils/svgHelpers.js';
-
-const GITHUB_GRAPHQL = 'https://api.github.com/graphql';
 
 /** Everything except the commit totals, which need one call per year. */
 const PROFILE_QUERY = `query userStats($login: String!) {
@@ -145,63 +144,6 @@ export function aggregateLanguages(repositories, { exclude = [], limit = 5 } = {
 }
 
 /**
- * Optional allowlist. `ALLOWED_USERS` is a comma-separated list of handles;
- * unset means "anyone", which is what you want locally and not what you want on
- * a public deployment - without it, a stranger can spend your token's rate limit
- * rendering cards for any account they like.
- *
- * @param {string} username
- * @returns {boolean}
- */
-export function isAllowedUser(username) {
-  const allowed = (process.env.ALLOWED_USERS ?? '')
-    .split(',')
-    .map((entry) => entry.trim().toLowerCase())
-    .filter(Boolean);
-  return allowed.length === 0 || allowed.includes(username.toLowerCase());
-}
-
-/**
- * Warm-lambda memo. Vercel reuses an instance for a while, so this saves the
- * GitHub round trips on bursts without any external cache.
- *
- * @type {Map<string, { expires: number, data: object }>}
- */
-const cache = new Map();
-const CACHE_TTL_MS = 10 * 60 * 1000;
-
-/**
- * One GraphQL request, with the error handling every caller needs.
- *
- * @param {string} query
- * @param {Record<string, unknown>} variables
- * @param {string} token
- * @returns {Promise<Record<string, any>>} the `data` payload
- * @throws {Error} on a transport error or a GraphQL error
- */
-async function graphql(query, variables, token) {
-  const response = await fetch(GITHUB_GRAPHQL, {
-    method: 'POST',
-    headers: {
-      Authorization: `bearer ${token}`,
-      'Content-Type': 'application/json',
-      'User-Agent': 'readme-svg-generator'
-    },
-    body: JSON.stringify({ query, variables })
-  });
-
-  if (!response.ok) {
-    throw new Error(`GitHub API returned ${response.status}`);
-  }
-
-  const payload = await response.json();
-  if (payload.errors?.length) {
-    throw new Error(payload.errors[0].message ?? 'GitHub API error');
-  }
-  return payload.data ?? {};
-}
-
-/**
  * Fetch and reduce a user's stats.
  *
  * @param {string} login
@@ -211,10 +153,7 @@ async function graphql(query, variables, token) {
  * @throws {Error} when the token is rejected or the user does not exist
  */
 async function fetchStats(login, token, excludeLangs = []) {
-  const key = `${login.toLowerCase()}|${excludeLangs.join(',').toLowerCase()}`;
-  const cached = cache.get(key);
-  if (cached && cached.expires > Date.now()) return cached.data;
-
+  return memoized(`stats|${login.toLowerCase()}|${excludeLangs.join(',').toLowerCase()}`, async () => {
   const profile = await graphql(PROFILE_QUERY, { login }, token);
   const user = profile.user;
   if (!user) {
@@ -244,29 +183,8 @@ async function fetchStats(login, token, excludeLangs = []) {
     languages
   };
 
-  cache.set(key, { expires: Date.now() + CACHE_TTL_MS, data });
   return data;
-}
-
-/**
- * Draw a failure as a card so the README shows a readable message rather than
- * a broken-image icon.
- *
- * @param {import('http').ServerResponse} res
- * @param {Record<string, unknown>} query
- * @param {string} message
- */
-function sendError(res, query, message) {
-  const svg = renderStatusCard({
-    label: 'ERROR',
-    title: 'Stats unavailable',
-    subtitle: message,
-    theme: { ...resolveTheme(query), accent: '#f85149' },
-    border: parseBoolean(query.border, true),
-    pulse: false,
-    width: parseNumber(query.width, 495, 200, 1000)
   });
-  sendSvg(res, svg, { cache: false });
 }
 
 /**
@@ -275,23 +193,12 @@ function sendError(res, query, message) {
  */
 export default async function handler(req, res) {
   const query = req.query ?? {};
-  const username = sanitizeUsername(query.username);
-
-  if (!username) {
-    sendError(res, query, 'Add ?username=your-github-handle');
+  const guard = requireGitHubUser(query);
+  if (!guard.ok) {
+    sendErrorCard(res, query, guard.message, 'Stats unavailable');
     return;
   }
-
-  if (!isAllowedUser(username)) {
-    sendError(res, query, `"${username}" is not on this instance's allowlist`);
-    return;
-  }
-
-  const token = process.env.GITHUB_TOKEN;
-  if (!token) {
-    sendError(res, query, 'Server is missing GITHUB_TOKEN');
-    return;
-  }
+  const { username, token } = guard;
 
   try {
     const excludeLangs = parseList(query.exclude_langs, 12);
@@ -313,6 +220,6 @@ export default async function handler(req, res) {
 
     sendSvg(res, svg, { maxAge: parseNumber(query.cache_seconds, undefined, 60, 86400) });
   } catch (error) {
-    sendError(res, query, error instanceof Error ? error.message : 'Unknown error');
+    sendErrorCard(res, query, error instanceof Error ? error.message : 'Unknown error', 'Stats unavailable');
   }
 }
