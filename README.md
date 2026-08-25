@@ -15,6 +15,9 @@ just XML strings and HTTP caching.
 <img src="public/preview/status.svg" alt="Status card" width="495" />
 <img src="public/preview/stack.svg" alt="Tech stack card" width="495" />
 <img src="public/preview/stats.svg" alt="GitHub stats card" width="495" />
+<img src="public/preview/terminal.svg" alt="Terminal card" width="495" />
+<img src="public/preview/repo.svg" alt="Repo pin card" width="495" />
+<img src="public/preview/heatmap.svg" alt="Contribution heatmap card" width="720" />
 
 **Live, from the deployment** - real data, and it follows your colour scheme:
 
@@ -37,7 +40,7 @@ Most README card services shell out to Puppeteer to screenshot HTML. That is slo
 expensive to host. Every card here is an SVG document assembled from template strings, so a cold
 serverless invocation is a few milliseconds and the whole project installs zero packages.
 
-- **Three endpoints:** status card, tech-stack matrix, GitHub stats.
+- **Six cards:** status, tech stack, GitHub stats, contribution heatmap, terminal transcript, repo pin.
 - **Six themes** plus per-colour overrides from the query string.
 - **One visual system:** square corners, hairline rules, monospace type. No gradients, no shadows,
   no rounded pills.
@@ -103,6 +106,8 @@ Base URL is your deployment. Every endpoint also answers on a clean path (`/card
 | `border_color` | hex | theme | Border override. |
 | `cache_seconds` | integer | `14400` | How long the card stays fresh, clamped to 60-86400. Lower it while iterating, raise it when you are done. |
 
+Three cards need a token (`stats`, `heatmap`, `repo`); three do not (`card`, `stack`, `terminal`).
+
 Booleans accept `true`/`false`, `1`/`0`, `yes`/`no`, `on`/`off`, and a bare flag (`?border`) means
 true. Invalid colours are ignored rather than injected, so a bad value degrades to the theme.
 
@@ -155,6 +160,7 @@ that aliases a collection per year and sums them.
 | Parameter | Type | Default | Description |
 | --- | --- | --- | --- |
 | `username` | string | **required** | GitHub handle. Invalid handles render an error card. |
+| `year` | integer | *(lifetime)* | Scope commits, PRs, issues and contributed-repos to one calendar year. Stars cannot be date-filtered, so they stay lifetime and the row says so. |
 | `show_icons` | boolean | `true` | Single-character marker (`*`, `#`, `>`, `?`, `~`) beside each metric. |
 | `hide` | comma list | *(none)* | Any of `stars`, `commits`, `prs`, `issues`, `contributed`, `languages`. |
 | `exclude_langs` | comma list | *(none)* | Language names to leave out of the breakdown, e.g. `Jupyter Notebook,HTML`. Case-insensitive, max 12. |
@@ -204,6 +210,56 @@ For anything still overrepresented, drop it outright:
 
 Failures (missing token, unknown user, disallowed handle, GitHub outage) render a readable error
 card with `Cache-Control: no-store`, so a transient problem is not cached for four hours.
+
+### `GET /api/heatmap` - contribution calendar
+
+53 columns of seven squares, one per day, with levels scaled to the busiest day
+so a quiet year still shows contrast. Cells are sized from the card width rather
+than fixed, so the grid always fills the card exactly.
+
+| Parameter | Type | Default | Description |
+| --- | --- | --- | --- |
+| `username` | string | **required** | GitHub handle. |
+| `year` | integer | *(last 12 months)* | A calendar year. Omit for the trailing twelve months, which is what GitHub's own calendar shows. |
+| `legend` | boolean | `true` | The LESS/MORE ramp under the grid. |
+| `month_labels` | boolean | `true` | Month names above the grid. |
+| `width` | integer | `720` | 300-1200. Below about 400px the gaps close up before the cells shrink. |
+
+```markdown
+![Heatmap](https://your-app.vercel.app/api/heatmap?username=octocat&year=2026)
+```
+
+### `GET /api/terminal` - shell transcript
+
+Needs no token and calls nothing. Lines are pipe-separated, because a transcript
+is full of commas. Lines starting with the prompt render as commands in the
+accent colour; everything else is output.
+
+| Parameter | Type | Default | Description |
+| --- | --- | --- | --- |
+| `lines` | pipe-separated | *(empty)* | Transcript rows, max 20. A repeated `line=` parameter works too. |
+| `title` | string | `~/PROJECTS - BASH` | Title-bar text. |
+| `prompt` | string | `$` | What marks a line as a command. |
+| `cursor` | boolean | `true` | Blinking block cursor on a final prompt line. |
+| `width` | integer | `495` | 200-1000. Long lines are clipped to the character grid. |
+
+```markdown
+![Terminal](https://your-app.vercel.app/api/terminal?lines=$%20whoami|octocat|$%20ls%20repos/|hello-world)
+```
+
+### `GET /api/repo` - repository pin
+
+| Parameter | Type | Default | Description |
+| --- | --- | --- | --- |
+| `repo` | `owner/name` | **required** | Or pass `owner` and `name` separately. |
+| `width` | integer | `420` | 250-1000. |
+
+The allowlist applies to the repository owner, so an instance pinned to one
+handle will not render other people's repositories.
+
+```markdown
+![Repo](https://your-app.vercel.app/api/repo?repo=octocat/Hello-World)
+```
 
 ---
 
@@ -286,16 +342,19 @@ of seconds, and camo may well be the one paying it. It resolves itself on the ne
 ## Project layout
 
 ```text
-api/                      Vercel serverless routes: parse query, call renderer, set headers
-  card.js  stack.js  stats.js
+api/                      Routes: parse the query, call a renderer, set headers
+  card.js  stack.js  stats.js  heatmap.js  terminal.js  repo.js
 src/renderers/            Pure functions: options in, SVG string out
   renderStatusCard.js  renderStackCard.js  renderStatsCard.js
+  renderHeatmapCard.js  renderTerminalCard.js  renderRepoCard.js
 src/themes/index.js       Palettes and query-string colour overrides
 src/utils/sanitize.js     XML escaping and parameter validation
-src/utils/svgHelpers.js   Text measurement, tag boxes, meters, rules, animation CSS, response helper
+src/utils/svgHelpers.js   Text measurement, tag boxes, meters, rules, wrapping, animation CSS
+src/utils/github.js       One GraphQL client: timeouts, memo, allowlist
+src/utils/errorCard.js    The shared failure path
 public/index.html         Playground
 dev-server.js             node:http dev server (no Vercel account needed)
-test.js                   Smoke tests: npm test
+test.js                   Everything, run with node:assert
 ```
 
 The split matters: routes never build markup and renderers never touch `req`/`res`, which is why the
@@ -321,6 +380,8 @@ Add four colours to `themes` in [`src/themes/index.js`](src/themes/index.js):
 That is the whole change. Renderers derive dim text, rules and meter tracks from those four values
 via `mixColor`, so nothing else needs updating. Add the name to the `<select>` in
 [`public/index.html`](public/index.html) and to the table above.
+
+See [CONTRIBUTING.md](CONTRIBUTING.md) for the full guide.
 
 ### Add a card
 

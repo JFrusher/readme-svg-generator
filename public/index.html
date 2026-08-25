@@ -404,7 +404,19 @@
             <button type="button" class="tab" data-endpoint="card">STATUS</button>
             <button type="button" class="tab" data-endpoint="stack">STACK</button>
             <button type="button" class="tab" data-endpoint="stats">STATS</button>
+            <button type="button" class="tab" data-endpoint="heatmap">HEATMAP</button>
+            <button type="button" class="tab" data-endpoint="terminal">TERMINAL</button>
+            <button type="button" class="tab" data-endpoint="repo">REPO</button>
           </div>
+
+          <fieldset>
+            <legend>Preset</legend>
+            <label>
+              <select id="preset">
+                <option value="">-- load a preset --</option>
+              </select>
+            </label>
+          </fieldset>
 
           <fieldset data-fields="card">
             <legend>Status card</legend>
@@ -452,13 +464,55 @@ Tools: Docker, Terraform, Actions</textarea
             <label><input type="checkbox" id="stats-icons" checked /> Show markers</label>
             <span class="field-label">Hide fields</span>
             <div class="check-grid">
-              <label><input type="checkbox" class="hide-field" value="stars" /> Stars</label>
-              <label><input type="checkbox" class="hide-field" value="commits" /> Commits</label>
-              <label><input type="checkbox" class="hide-field" value="prs" /> PRs</label>
-              <label><input type="checkbox" class="hide-field" value="issues" /> Issues</label>
-              <label><input type="checkbox" class="hide-field" value="contributed" /> Contrib</label>
-              <label><input type="checkbox" class="hide-field" value="languages" /> Langs</label>
+              <label><input type="checkbox" class="hide-field" id="hide-stars" value="stars" /> Stars</label>
+              <label><input type="checkbox" class="hide-field" id="hide-commits" value="commits" /> Commits</label>
+              <label><input type="checkbox" class="hide-field" id="hide-prs" value="prs" /> PRs</label>
+              <label><input type="checkbox" class="hide-field" id="hide-issues" value="issues" /> Issues</label>
+              <label><input type="checkbox" class="hide-field" id="hide-contributed" value="contributed" /> Contrib</label>
+              <label><input type="checkbox" class="hide-field" id="hide-languages" value="languages" /> Langs</label>
             </div>
+          </fieldset>
+
+          <fieldset data-fields="heatmap" class="hidden">
+            <legend>Heatmap card</legend>
+            <label>
+              <span class="field-label">GitHub username</span>
+              <input type="text" id="heatmap-username" value="JFrusher" />
+            </label>
+            <label>
+              <span class="field-label">Year (blank = last 12 months)</span>
+              <input type="text" id="heatmap-year" value="" />
+            </label>
+            <label><input type="checkbox" id="heatmap-legend" checked /> Legend</label>
+            <label><input type="checkbox" id="heatmap-months" checked /> Month labels</label>
+          </fieldset>
+
+          <fieldset data-fields="terminal" class="hidden">
+            <legend>Terminal card</legend>
+            <label>
+              <span class="field-label">Window title</span>
+              <input type="text" id="terminal-title" value="~/PROJECTS - BASH" />
+            </label>
+            <label>
+              <span class="field-label">Transcript - one line per row</span>
+              <textarea id="terminal-lines" rows="6">$ whoami
+jfrusher - biomedical engineering + ML
+$ ls research/
+cathsim  emg  malli  pbpk-abm</textarea>
+            </label>
+            <label>
+              <span class="field-label">Prompt</span>
+              <input type="text" id="terminal-prompt" value="$" />
+            </label>
+            <label><input type="checkbox" id="terminal-cursor" checked /> Blinking cursor</label>
+          </fieldset>
+
+          <fieldset data-fields="repo" class="hidden">
+            <legend>Repo card</legend>
+            <label>
+              <span class="field-label">Repository (owner/name)</span>
+              <input type="text" id="repo-target" value="JFrusher/readme-svg-generator" />
+            </label>
           </fieldset>
 
           <fieldset>
@@ -510,6 +564,7 @@ Tools: Docker, Terraform, Actions</textarea
             <div class="toolbar">
               <span class="note" id="preview-note"></span>
               <button type="button" data-copy="snippet-url">Copy URL</button>
+              <button type="button" data-copy="snippet-picture">Copy &lt;picture&gt;</button>
               <button type="button" data-copy="snippet-md">Copy Markdown</button>
             </div>
 
@@ -525,6 +580,12 @@ Tools: Docker, Terraform, Actions</textarea
                 <button type="button" data-copy="snippet-html">COPY</button>
               </div>
               <pre id="snippet-html"></pre>
+
+              <div class="out-head">
+                <h2>HTML - picture, follows the reader's theme</h2>
+                <button type="button" data-copy="snippet-picture">COPY</button>
+              </div>
+              <pre id="snippet-picture"></pre>
 
               <div class="out-head">
                 <h2>URL</h2>
@@ -545,7 +606,42 @@ Tools: Docker, Terraform, Actions</textarea
     <script>
       const $ = (id) => document.getElementById(id);
       const origin = window.location.origin;
-      const ALT = { card: 'Status card', stack: 'Tech stack', stats: 'GitHub stats' };
+      const ALT = {
+        card: 'Status card',
+        stack: 'Tech stack',
+        stats: 'GitHub stats',
+        heatmap: 'Contribution heatmap',
+        terminal: 'Terminal',
+        repo: 'Repository'
+      };
+
+      /** Starting points, so nobody has to build a card from defaults. */
+      const PRESETS = {
+        'Status - available for work': {
+          endpoint: 'card',
+          fields: { 'card-title': 'Available for work', 'card-subtitle': 'Backend, platform and dev tooling', 'card-label': 'STATUS', theme: 'system' }
+        },
+        'Stats - commits and languages only': {
+          endpoint: 'stats',
+          fields: { 'stats-username': 'JFrusher', 'hide-stars': true, 'hide-prs': true, 'hide-issues': true, 'hide-contributed': true, theme: 'system' }
+        },
+        'Heatmap - this year': {
+          endpoint: 'heatmap',
+          fields: { 'heatmap-username': 'JFrusher', 'heatmap-year': String(new Date().getFullYear()), width: '720', theme: 'dark' }
+        },
+        'Terminal - whoami': {
+          endpoint: 'terminal',
+          fields: { 'terminal-title': '~/PROJECTS - BASH', 'terminal-lines': '$ whoami
+jfrusher
+$ ls research/
+cathsim  emg  malli', theme: 'system' }
+        },
+        'Repo - pin a project': {
+          endpoint: 'repo',
+          fields: { 'repo-target': 'JFrusher/readme-svg-generator', width: '420', theme: 'system' }
+        }
+      };
+
       let endpoint = 'card';
 
       /** Read every control into the query object for the active endpoint. */
@@ -578,6 +674,27 @@ Tools: Docker, Terraform, Actions</textarea
             params.set(name, items.join(','));
           }
           if (names.length) params.set('categories', names.join(','));
+        }
+
+        if (endpoint === 'heatmap') {
+          params.set('username', $('heatmap-username').value.trim());
+          const year = $('heatmap-year').value.trim();
+          if (year) params.set('year', year);
+          if (!$('heatmap-legend').checked) params.set('legend', 'false');
+          if (!$('heatmap-months').checked) params.set('month_labels', 'false');
+        }
+
+        if (endpoint === 'terminal') {
+          params.set('title', $('terminal-title').value);
+          const lines = $('terminal-lines').value.split('
+').filter((line) => line.length > 0);
+          if (lines.length) params.set('lines', lines.join('|'));
+          if ($('terminal-prompt').value) params.set('prompt', $('terminal-prompt').value);
+          if (!$('terminal-cursor').checked) params.set('cursor', 'false');
+        }
+
+        if (endpoint === 'repo') {
+          params.set('repo', $('repo-target').value.trim());
         }
 
         if (endpoint === 'stats') {
@@ -616,9 +733,20 @@ Tools: Docker, Terraform, Actions</textarea
         };
         $('preview').replaceChildren(img);
 
+        // The dark-mode variant differs only by theme, which is what makes a
+        // <picture> pair possible without building the URL twice by hand.
+        const darkUrl = url.replace(/([?&]theme=)[^&]*/, '$1dark');
         $('snippet-md').textContent = `![${alt}](${url})`;
         $('snippet-html').textContent = `<img src="${url}" alt="${alt}" />`;
+        $('snippet-picture').textContent = [
+          '<picture>',
+          `  <source media="(prefers-color-scheme: dark)" srcset="${darkUrl}" />`,
+          `  <img src="${url}" alt="${alt}" />`,
+          '</picture>'
+        ].join('
+');
         $('snippet-url').textContent = url;
+        saveState();
 
         $('status-route').textContent =
           `GET /api/${endpoint} - ${$('width').value}PX - ${$('theme').value.toUpperCase()}`;
@@ -665,7 +793,56 @@ Tools: Docker, Terraform, Actions</textarea
         }
       });
 
-      selectEndpoint('card');
+      /**
+       * Round-trip every control through the URL hash, so a configuration
+       * survives a refresh and can be sent to someone else.
+       */
+      function saveState() {
+        const fields = {};
+        for (const el of document.querySelectorAll('input[id], select[id], textarea[id]')) {
+          if (el.id === 'preset') continue;
+          fields[el.id] = el.type === 'checkbox' ? el.checked : el.value;
+        }
+        const json = JSON.stringify({ endpoint, fields });
+        history.replaceState(null, '', `#${btoa(unescape(encodeURIComponent(json)))}`);
+      }
+
+      function applyFields(fields) {
+        for (const [id, value] of Object.entries(fields ?? {})) {
+          const el = $(id);
+          if (!el) continue;
+          if (el.type === 'checkbox') el.checked = Boolean(value);
+          else el.value = value;
+        }
+        $('width-value').textContent = $('width').value;
+        $('color-overrides').classList.toggle('hidden', !$('custom-colors').checked);
+      }
+
+      function restoreState() {
+        if (!location.hash) return false;
+        try {
+          const state = JSON.parse(decodeURIComponent(escape(atob(location.hash.slice(1)))));
+          if (!ALT[state.endpoint]) return false;
+          applyFields(state.fields);
+          selectEndpoint(state.endpoint);
+          return true;
+        } catch {
+          return false;
+        }
+      }
+
+      for (const name of Object.keys(PRESETS)) {
+        $('preset').append(new Option(name, name));
+      }
+
+      $('preset').addEventListener('change', (event) => {
+        const preset = PRESETS[event.target.value];
+        if (!preset) return;
+        applyFields(preset.fields);
+        selectEndpoint(preset.endpoint);
+      });
+
+      if (!restoreState()) selectEndpoint('card');
     </script>
   </body>
 </html>

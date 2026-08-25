@@ -1,6 +1,6 @@
-<svg xmlns="http://www.w3.org/2000/svg" width="495" height="182" viewBox="0 0 495 182" role="img" aria-labelledby="cardTitle">
+<svg xmlns="http://www.w3.org/2000/svg" width="495" height="146" viewBox="0 0 495 146" role="img" aria-labelledby="cardTitle">
   <title id="cardTitle">Terminal - ~/PROJECTS - BASH</title>
-  <rect x="1" y="1" width="493" height="180" fill="#ffffff" stroke="#000000" stroke-width="2" shape-rendering="crispEdges" />
+  <rect x="1" y="1" width="493" height="144" fill="#ffffff" stroke="#000000" stroke-width="2" shape-rendering="crispEdges" />
 <style>
     text { font-family: 'SF Mono', 'Cascadia Code', 'Courier New', Consolas, monospace; }
     .title { font-size: 13px; font-weight: 700; fill: #000000; letter-spacing: 0.5px; }
@@ -30,9 +30,7 @@
     <text class="body reveal" style="animation-delay: 0.18s" x="16" y="70" xml:space="preserve">jfrusher - biomedical engineering + ML</text>
     <text class="value reveal" style="animation-delay: 0.36s" x="16" y="88" xml:space="preserve">$ ls research/</text>
     <text class="body reveal" style="animation-delay: 0.54s" x="16" y="106" xml:space="preserve">cathsim  emg  malli  pbpk-abm</text>
-    <text class="value reveal" style="animation-delay: 0.72s" x="16" y="124" xml:space="preserve">$ cat status.txt</text>
-    <text class="body reveal" style="animation-delay: 0.90s" x="16" y="142" xml:space="preserve">building things that measure things</text>
-    <text class="value reveal" style="animation-delay: 1.08s" x="16" y="160">$</text>
-    <rect class="blink" x="31" y="151" width="8" height="8" fill="#000000" shape-rendering="crispEdges" />
+    <text class="value reveal" style="animation-delay: 0.72s" x="16" y="124">$</text>
+    <rect class="blink" x="31" y="115" width="8" height="8" fill="#000000" shape-rendering="crispEdges" />
   </g>
 </svg>
