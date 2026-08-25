@@ -263,6 +263,49 @@ export const GLYPHS = {
 };
 
 /**
+ * Break text into lines that fit a character budget, on word boundaries where
+ * possible. Monospace makes the budget exact, so this is a character count
+ * rather than a measurement. A word longer than the budget is hard-split
+ * instead of overflowing.
+ *
+ * @param {string} text
+ * @param {number} maxChars per line
+ * @param {number} [maxLines] later lines are dropped and the last gets an ellipsis
+ * @returns {string[]}
+ */
+export function wrapText(text, maxChars, maxLines = 3) {
+  const budget = Math.max(4, Math.floor(maxChars));
+  const lines = [];
+  let current = '';
+
+  for (const word of String(text).trim().split(/\s+/).filter(Boolean)) {
+    let candidate = current ? `${current} ${word}` : word;
+    while (candidate.length > budget) {
+      if (current) {
+        lines.push(current);
+        current = '';
+        candidate = word;
+        continue;
+      }
+      // A single word too long for the line: split it.
+      lines.push(candidate.slice(0, budget));
+      candidate = candidate.slice(budget);
+    }
+    current = candidate;
+    if (lines.length >= maxLines) break;
+  }
+  if (current && lines.length < maxLines) lines.push(current);
+
+  const kept = lines.slice(0, maxLines);
+  const truncated = lines.length > maxLines || (lines.length === maxLines && current && !kept.includes(current));
+  if (truncated && kept.length > 0) {
+    const last = kept[kept.length - 1];
+    kept[kept.length - 1] = `${last.slice(0, Math.max(0, budget - 1)).trimEnd()}…`;
+  }
+  return kept;
+}
+
+/**
  * Format a number the way GitHub does: `1234` becomes `1.2k`.
  *
  * @param {number} value

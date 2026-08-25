@@ -123,3 +123,15 @@ export function sanitizeUsername(value) {
   const candidate = value.trim();
   return /^[a-z\d](?:[a-z\d]|-(?=[a-z\d])){0,38}$/i.test(candidate) ? candidate : null;
 }
+
+/**
+ * Repository names: letters, digits, dot, dash, underscore, up to 100 chars.
+ *
+ * @param {unknown} value
+ * @returns {string|null}
+ */
+export function sanitizeRepoName(value) {
+  if (typeof value !== 'string') return null;
+  const candidate = value.trim();
+  return /^[A-Za-z0-9._-]{1,100}$/.test(candidate) ? candidate : null;
+}

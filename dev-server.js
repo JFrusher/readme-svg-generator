@@ -20,12 +20,14 @@ const ROUTES = {
   '/api/stats': () => import('./api/stats.js'),
   '/api/terminal': () => import('./api/terminal.js'),
   '/api/heatmap': () => import('./api/heatmap.js'),
+  '/api/repo': () => import('./api/repo.js'),
   // The clean paths `vercel.json` rewrites in production.
   '/card': () => import('./api/card.js'),
   '/stack': () => import('./api/stack.js'),
   '/stats': () => import('./api/stats.js'),
   '/terminal': () => import('./api/terminal.js'),
-  '/heatmap': () => import('./api/heatmap.js')
+  '/heatmap': () => import('./api/heatmap.js'),
+  '/repo': () => import('./api/repo.js')
 };
 
 const CONTENT_TYPES = {

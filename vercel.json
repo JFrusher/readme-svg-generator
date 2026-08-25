@@ -22,6 +22,10 @@
     {
       "source": "/heatmap",
       "destination": "/api/heatmap"
+    },
+    {
+      "source": "/repo",
+      "destination": "/api/repo"
     }
   ],
   "headers": [

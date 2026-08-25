@@ -10,15 +10,17 @@ import assert from 'node:assert/strict';
 
 import { aggregateLanguages, buildCommitsQuery, sumCommits } from './api/stats.js';
 import { yearWindow } from './api/heatmap.js';
+import { parseRepoTarget } from './api/repo.js';
 import { isAllowedUser } from './src/utils/github.js';
 import { renderStackCard } from './src/renderers/renderStackCard.js';
 import { renderStatsCard } from './src/renderers/renderStatsCard.js';
 import { levelThresholds, renderHeatmapCard } from './src/renderers/renderHeatmapCard.js';
+import { renderRepoCard } from './src/renderers/renderRepoCard.js';
 import { renderStatusCard } from './src/renderers/renderStatusCard.js';
 import { renderTerminalCard } from './src/renderers/renderTerminalCard.js';
 import { resolveTheme, themes } from './src/themes/index.js';
-import { escapeXml, parseBoolean, parseList, parseNumber, sanitizeColor, sanitizeUsername } from './src/utils/sanitize.js';
-import { cacheControl, formatCount, mixColor } from './src/utils/svgHelpers.js';
+import { escapeXml, parseBoolean, parseList, parseNumber, sanitizeColor, sanitizeRepoName, sanitizeUsername } from './src/utils/sanitize.js';
+import { cacheControl, formatCount, mixColor, wrapText } from './src/utils/svgHelpers.js';
 
 /** Every `<tag>` opened must be closed, and no stray `<` may survive. */
 function assertWellFormed(svg, label) {
@@ -345,5 +347,58 @@ assert.equal(yearWindow(undefined).from, null, 'no year means the trailing twelv
 assert.equal(yearWindow('1999').from, null, 'out of range is ignored');
 assert.equal(yearWindow(String(thisYear + 5)).from, null, 'the future is ignored');
 assert.equal(yearWindow('2024; DROP').from, '2024-01-01T00:00:00Z', 'parsed as an integer, not interpolated');
+
+// --- word wrap ------------------------------------------------------------
+
+assert.deepEqual(wrapText('one two three four', 9, 3), ['one two', 'three', 'four']);
+assert.deepEqual(wrapText('', 20, 3), [], 'empty text yields no lines');
+assert.equal(wrapText('x'.repeat(80), 10, 2).length, 2, 'an unbreakable word is hard-split');
+assert.ok(wrapText('a b c d e f g h i j k l m n o p', 5, 2).at(-1).endsWith('…'), 'overflow is marked');
+for (const line of wrapText('the quick brown fox jumps over the lazy dog', 12, 5)) {
+  assert.ok(line.length <= 12, `line "${line}" exceeds the budget`);
+}
+
+// --- repo card ------------------------------------------------------------
+
+assert.deepEqual(parseRepoTarget({ repo: 'JFrusher/Plaque' }), { owner: 'JFrusher', name: 'Plaque' });
+assert.deepEqual(parseRepoTarget({ owner: 'JFrusher', name: 'Plaque' }), { owner: 'JFrusher', name: 'Plaque' });
+assert.equal(parseRepoTarget({ repo: 'no-slash' }), null);
+assert.equal(parseRepoTarget({ repo: 'bad owner/name' }), null, 'owner is validated');
+assert.equal(parseRepoTarget({ repo: 'owner/na me' }), null, 'repo name is validated');
+assert.equal(parseRepoTarget({}), null);
+assert.equal(sanitizeRepoName('dot.dash-under_1'), 'dot.dash-under_1');
+assert.equal(sanitizeRepoName('../../etc/passwd'), null);
+
+const repoCard = renderRepoCard({
+  nameWithOwner: 'JFrusher/Plaque',
+  description: 'Free, privacy-first web app that turns CSV guest lists into place cards. <b>',
+  language: { name: 'TypeScript', color: '#3178c6' },
+  stars: 1200,
+  forks: 34,
+  theme: themes.system
+});
+assertWellFormed(repoCard, 'repo card');
+assertInsideCard(repoCard, 'repo card');
+assert.ok(!repoCard.includes('<b>'), 'description markup is escaped');
+assert.ok(repoCard.includes('1.2k'), 'star count formatted');
+assert.ok(repoCard.includes('JFRUSHER/PLAQUE'), 'title bar shows the repo');
+assert.ok(
+  renderRepoCard({ nameWithOwner: 'a/b', theme: themes.system }).includes('No description'),
+  'a repo without a description still renders'
+);
+assert.ok(
+  renderRepoCard({ nameWithOwner: 'a/b', archived: true, theme: themes.system }).includes('ARCHIVED')
+);
+assertInsideCard(
+  renderRepoCard({
+    nameWithOwner: 'a/b',
+    description: 'x'.repeat(500),
+    stars: 999999,
+    forks: 999999,
+    theme: themes.system,
+    width: 250
+  }),
+  'narrow repo card'
+);
 
 console.log('All checks passed.');

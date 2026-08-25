@@ -1,0 +1,40 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="420" height="141" viewBox="0 0 420 141" role="img" aria-labelledby="cardTitle">
+  <title id="cardTitle">JFrusher/Plaque on GitHub</title>
+  <rect x="1" y="1" width="418" height="139" fill="#ffffff" stroke="#000000" stroke-width="2" shape-rendering="crispEdges" />
+<style>
+    text { font-family: 'SF Mono', 'Cascadia Code', 'Courier New', Consolas, monospace; }
+    .title { font-size: 13px; font-weight: 700; fill: #000000; letter-spacing: 0.5px; }
+    .title-inverse { font-size: 13px; font-weight: 700; fill: #ffffff; letter-spacing: 0.5px; }
+    .body { font-size: 12px; font-weight: 400; fill: #000000; }
+    .dim { font-size: 11px; font-weight: 400; fill: #666666; }
+    .heading { font-size: 11px; font-weight: 700; fill: #666666; letter-spacing: 1px; }
+    .value { font-size: 12px; font-weight: 700; fill: #000000; }
+    .glyph { font-size: 12px; font-weight: 700; fill: #000000; }
+    
+    @keyframes reveal { from { opacity: 0; } to { opacity: 1; } }
+    @keyframes fill { from { transform: scaleX(0); } to { transform: scaleX(1); } }
+    @keyframes blink { 0%, 49% { opacity: 1; } 50%, 100% { opacity: 0; } }
+    .reveal { animation: reveal 0.01s steps(1, end) backwards; }
+    .meter { animation: fill 0.8s steps(12, end) backwards; transform-origin: left center; }
+    .blink { animation: blink 1.2s steps(1, end) infinite; }
+    @media (prefers-reduced-motion: reduce) {
+      .reveal, .meter, .blink { animation: none; }
+    }
+  </style>
+  <g class="reveal">
+    <rect x="2" y="2" width="416" height="22" fill="#000000" shape-rendering="crispEdges" />
+    <text class="title-inverse" x="10" y="13" dominant-baseline="central">JFRUSHER/PLAQUE</text>
+  </g>
+  <g>
+    <text class="body reveal" style="animation-delay: 0.00s" x="16" y="50">Free, privacy-first web app that turns CSV guest</text>
+    <text class="body reveal" style="animation-delay: 0.06s" x="16" y="67">lists into print-ready place card PDFs. Features a</text>
+    <text class="body reveal" style="animation-delay: 0.12s" x="16" y="84">freeform layout editor with {{Token}} templates,…</text>
+    <line class="reveal" style="animation-delay: 0.18s" x1="16" y1="107.5" x2="404" y2="107.5" stroke="#595959" stroke-width="1" shape-rendering="crispEdges" />
+    <rect x="16" y="118" width="9" height="9" fill="#3178c6" shape-rendering="crispEdges" />
+    <text class="body reveal" style="animation-delay: 0.24s" x="31" y="127">TypeScript</text>
+    <text class="value reveal" style="animation-delay: 0.30s" x="396" y="127">0</text>
+    <text class="glyph reveal" style="animation-delay: 0.30s" x="381" y="127">Y</text>
+    <text class="value reveal" style="animation-delay: 0.30s" x="359" y="127">0</text>
+    <text class="glyph reveal" style="animation-delay: 0.30s" x="344" y="127">*</text>
+  </g>
+</svg>
