@@ -7,6 +7,8 @@
  */
 
 import assert from 'node:assert/strict';
+import { readFileSync } from 'node:fs';
+import vm from 'node:vm';
 
 import { aggregateLanguages, buildCommitsQuery, sumCommits } from './api/stats.js';
 import { yearWindow } from './api/heatmap.js';
@@ -400,5 +402,40 @@ assertInsideCard(
   }),
   'narrow repo card'
 );
+
+// --- playground -----------------------------------------------------------
+
+// The page is one inline script: a single syntax error takes out every
+// listener at once, and nothing else in this suite would notice.
+const page = readFileSync(new URL('./public/index.html', import.meta.url), 'utf8');
+const inline = page.match(/<script>([\s\S]*?)<\/script>/);
+assert.ok(inline, 'playground must have an inline script');
+new vm.Script(inline[1], { filename: 'public/index.html' });
+
+// Every $('id') the script reaches for must exist in the markup.
+const declaredIds = new Set([...page.matchAll(/\bid="([^"]+)"/g)].map((match) => match[1]));
+for (const [, id] of inline[1].matchAll(/\$\('([^']+)'\)/g)) {
+  assert.ok(declaredIds.has(id), `script references #${id}, which the page does not define`);
+}
+
+// Duplicate ids silently break getElementById.
+const allIds = [...page.matchAll(/\bid="([^"]+)"/g)].map((match) => match[1]);
+assert.equal(allIds.length, declaredIds.size, `duplicate id in the playground: ${allIds}`);
+
+// Every tab must have a matching fieldset, and every endpoint a live route.
+const endpoints = [...page.matchAll(/data-endpoint="([^"]+)"/g)].map((match) => match[1]);
+const fieldsets = new Set([...page.matchAll(/data-fields="([^"]+)"/g)].map((match) => match[1]));
+assert.equal(endpoints.length, 6, 'six card types');
+for (const endpoint of endpoints) {
+  assert.ok(fieldsets.has(endpoint), `tab "${endpoint}" has no fieldset`);
+  assert.ok(
+    readFileSync(new URL('./dev-server.js', import.meta.url), 'utf8').includes(`'/api/${endpoint}'`),
+    `tab "${endpoint}" has no route in dev-server.js`
+  );
+  assert.ok(
+    readFileSync(new URL('./vercel.json', import.meta.url), 'utf8').includes(`/api/${endpoint}`),
+    `tab "${endpoint}" has no rewrite in vercel.json`
+  );
+}
 
 console.log('All checks passed.');

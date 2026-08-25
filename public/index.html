@@ -631,10 +631,11 @@ cathsim  emg  malli  pbpk-abm</textarea>
         },
         'Terminal - whoami': {
           endpoint: 'terminal',
-          fields: { 'terminal-title': '~/PROJECTS - BASH', 'terminal-lines': '$ whoami
-jfrusher
-$ ls research/
-cathsim  emg  malli', theme: 'system' }
+          fields: {
+            'terminal-title': '~/PROJECTS - BASH',
+            'terminal-lines': ['$ whoami', 'jfrusher', '$ ls research/', 'cathsim  emg  malli'].join('\n'),
+            theme: 'system'
+          }
         },
         'Repo - pin a project': {
           endpoint: 'repo',
@@ -686,8 +687,7 @@ cathsim  emg  malli', theme: 'system' }
 
         if (endpoint === 'terminal') {
           params.set('title', $('terminal-title').value);
-          const lines = $('terminal-lines').value.split('
-').filter((line) => line.length > 0);
+          const lines = $('terminal-lines').value.split('\n').filter((line) => line.length > 0);
           if (lines.length) params.set('lines', lines.join('|'));
           if ($('terminal-prompt').value) params.set('prompt', $('terminal-prompt').value);
           if (!$('terminal-cursor').checked) params.set('cursor', 'false');
@@ -743,8 +743,7 @@ cathsim  emg  malli', theme: 'system' }
           `  <source media="(prefers-color-scheme: dark)" srcset="${darkUrl}" />`,
           `  <img src="${url}" alt="${alt}" />`,
           '</picture>'
-        ].join('
-');
+        ].join('\n');
         $('snippet-url').textContent = url;
         saveState();
 
