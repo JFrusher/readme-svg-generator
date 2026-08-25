@@ -252,6 +252,7 @@ accent colour; everything else is output.
 | Parameter | Type | Default | Description |
 | --- | --- | --- | --- |
 | `repo` | `owner/name` | **required** | Or pass `owner` and `name` separately. |
+| `topics` | boolean | `true` | Show the repository's topics as raised tag buttons, max 8. |
 | `width` | integer | `420` | 250-1000. |
 
 The allowlist applies to the repository owner, so an instance pinned to one

@@ -23,6 +23,7 @@ import {
   statusSquare,
   styleBlock,
   svgDocument,
+  tagRow,
   titleBar,
   wrapText
 } from '../utils/svgHelpers.js';
@@ -34,6 +35,7 @@ import {
  * @property {{ name: string, color?: string }} [language]
  * @property {number} [stars]
  * @property {number} [forks]
+ * @property {string[]} [topics] repository topics, drawn as raised tag buttons
  * @property {boolean} [archived]
  * @property {import('../themes/index.js').Theme} theme
  * @property {boolean} [border]
@@ -51,6 +53,7 @@ export function renderRepoCard({
   language,
   stars = 0,
   forks = 0,
+  topics = [],
   archived = false,
   theme,
   border = true,
@@ -78,6 +81,21 @@ export function renderRepoCard({
   } else {
     parts.push(`    <text class="dim" x="${paddingX}" y="${cursorY}">No description</text>`);
     cursorY += 17;
+  }
+
+  if (topics.length > 0) {
+    cursorY += 4;
+    const row = tagRow({
+      items: topics.slice(0, 8),
+      x: paddingX,
+      y: cursorY,
+      maxWidth: contentWidth,
+      theme,
+      startIndex: lines.length,
+      bevel: true
+    });
+    parts.push(row.svg);
+    cursorY += row.height + 6;
   }
 
   cursorY += 6;

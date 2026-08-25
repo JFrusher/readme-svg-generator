@@ -1,6 +1,6 @@
-<svg xmlns="http://www.w3.org/2000/svg" width="495" height="124" viewBox="0 0 495 124" role="img" aria-labelledby="cardTitle">
+<svg xmlns="http://www.w3.org/2000/svg" width="495" height="180" viewBox="0 0 495 180" role="img" aria-labelledby="cardTitle">
   <title id="cardTitle">JFrusher/readme-svg-generator on GitHub</title>
-  <rect x="1" y="1" width="493" height="122" fill="#ffffff" stroke="#000000" stroke-width="2" shape-rendering="crispEdges" />
+  <rect x="1" y="1" width="493" height="178" fill="#ffffff" stroke="#000000" stroke-width="2" shape-rendering="crispEdges" />
 <style>
     text { font-family: 'SF Mono', 'Cascadia Code', 'Courier New', Consolas, monospace; }
     .title { font-size: 13px; font-weight: 700; fill: #000000; letter-spacing: 0.5px; }
@@ -28,12 +28,60 @@
   <g>
     <text class="body reveal" style="animation-delay: 0.00s" x="16" y="50">Dynamic SVG stats and status cards for GitHub profile READMEs.</text>
     <text class="body reveal" style="animation-delay: 0.06s" x="16" y="67">Zero dependencies, no headless browser, brutalist retro UI.</text>
-    <line class="reveal" style="animation-delay: 0.12s" x1="16" y1="90.5" x2="479" y2="90.5" stroke="#595959" stroke-width="1" shape-rendering="crispEdges" />
-    <rect x="16" y="101" width="9" height="9" fill="#f1e05a" shape-rendering="crispEdges" />
-    <text class="body reveal" style="animation-delay: 0.18s" x="31" y="110">JavaScript</text>
-    <text class="value reveal" style="animation-delay: 0.24s" x="471" y="110">0</text>
-    <text class="glyph reveal" style="animation-delay: 0.24s" x="456" y="110">Y</text>
-    <text class="value reveal" style="animation-delay: 0.24s" x="434" y="110">0</text>
-    <text class="glyph reveal" style="animation-delay: 0.24s" x="419" y="110">*</text>
+    <g class="reveal" style="animation-delay: 0.06s">
+      <rect x="16" y="88" width="120" height="20" fill="#ebebeb" stroke="#000000" stroke-width="1" shape-rendering="crispEdges" />
+      <path d="M16.5 107.5 L16.5 88.5 L135.5 88.5" fill="none" stroke="#ffffff" stroke-width="1" shape-rendering="crispEdges" />
+      <path d="M135.5 88.5 L135.5 107.5 L16.5 107.5" fill="none" stroke="#8c8c8c" stroke-width="1" shape-rendering="crispEdges" />
+      <text class="body" font-size="11" x="76" y="98.5" dominant-baseline="central" text-anchor="middle">brutalist-design</text>
+    </g>
+    <g class="reveal" style="animation-delay: 0.09s">
+      <rect x="142" y="88" width="87" height="20" fill="#ebebeb" stroke="#000000" stroke-width="1" shape-rendering="crispEdges" />
+      <path d="M142.5 107.5 L142.5 88.5 L228.5 88.5" fill="none" stroke="#ffffff" stroke-width="1" shape-rendering="crispEdges" />
+      <path d="M228.5 88.5 L228.5 107.5 L142.5 107.5" fill="none" stroke="#8c8c8c" stroke-width="1" shape-rendering="crispEdges" />
+      <text class="body" font-size="11" x="185.5" y="98.5" dominant-baseline="central" text-anchor="middle">dynamic-svg</text>
+    </g>
+    <g class="reveal" style="animation-delay: 0.12s">
+      <rect x="235" y="88" width="80" height="20" fill="#ebebeb" stroke="#000000" stroke-width="1" shape-rendering="crispEdges" />
+      <path d="M235.5 107.5 L235.5 88.5 L314.5 88.5" fill="none" stroke="#ffffff" stroke-width="1" shape-rendering="crispEdges" />
+      <path d="M314.5 88.5 L314.5 107.5 L235.5 107.5" fill="none" stroke="#8c8c8c" stroke-width="1" shape-rendering="crispEdges" />
+      <text class="body" font-size="11" x="275" y="98.5" dominant-baseline="central" text-anchor="middle">github-api</text>
+    </g>
+    <g class="reveal" style="animation-delay: 0.15s">
+      <rect x="321" y="88" width="107" height="20" fill="#ebebeb" stroke="#000000" stroke-width="1" shape-rendering="crispEdges" />
+      <path d="M321.5 107.5 L321.5 88.5 L427.5 88.5" fill="none" stroke="#ffffff" stroke-width="1" shape-rendering="crispEdges" />
+      <path d="M427.5 88.5 L427.5 107.5 L321.5 107.5" fill="none" stroke="#8c8c8c" stroke-width="1" shape-rendering="crispEdges" />
+      <text class="body" font-size="11" x="374.5" y="98.5" dominant-baseline="central" text-anchor="middle">github-profile</text>
+    </g>
+    <g class="reveal" style="animation-delay: 0.18s">
+      <rect x="16" y="114" width="100" height="20" fill="#ebebeb" stroke="#000000" stroke-width="1" shape-rendering="crispEdges" />
+      <path d="M16.5 133.5 L16.5 114.5 L115.5 114.5" fill="none" stroke="#ffffff" stroke-width="1" shape-rendering="crispEdges" />
+      <path d="M115.5 114.5 L115.5 133.5 L16.5 133.5" fill="none" stroke="#8c8c8c" stroke-width="1" shape-rendering="crispEdges" />
+      <text class="body" font-size="11" x="66" y="124.5" dominant-baseline="central" text-anchor="middle">github-readme</text>
+    </g>
+    <g class="reveal" style="animation-delay: 0.21s">
+      <rect x="122" y="114" width="61" height="20" fill="#ebebeb" stroke="#000000" stroke-width="1" shape-rendering="crispEdges" />
+      <path d="M122.5 133.5 L122.5 114.5 L182.5 114.5" fill="none" stroke="#ffffff" stroke-width="1" shape-rendering="crispEdges" />
+      <path d="M182.5 114.5 L182.5 133.5 L122.5 133.5" fill="none" stroke="#8c8c8c" stroke-width="1" shape-rendering="crispEdges" />
+      <text class="body" font-size="11" x="152.5" y="124.5" dominant-baseline="central" text-anchor="middle">graphql</text>
+    </g>
+    <g class="reveal" style="animation-delay: 0.24s">
+      <rect x="189" y="114" width="54" height="20" fill="#ebebeb" stroke="#000000" stroke-width="1" shape-rendering="crispEdges" />
+      <path d="M189.5 133.5 L189.5 114.5 L242.5 114.5" fill="none" stroke="#ffffff" stroke-width="1" shape-rendering="crispEdges" />
+      <path d="M242.5 114.5 L242.5 133.5 L189.5 133.5" fill="none" stroke="#8c8c8c" stroke-width="1" shape-rendering="crispEdges" />
+      <text class="body" font-size="11" x="216" y="124.5" dominant-baseline="central" text-anchor="middle">nodejs</text>
+    </g>
+    <g class="reveal" style="animation-delay: 0.27s">
+      <rect x="249" y="114" width="107" height="20" fill="#ebebeb" stroke="#000000" stroke-width="1" shape-rendering="crispEdges" />
+      <path d="M249.5 133.5 L249.5 114.5 L355.5 114.5" fill="none" stroke="#ffffff" stroke-width="1" shape-rendering="crispEdges" />
+      <path d="M355.5 114.5 L355.5 133.5 L249.5 133.5" fill="none" stroke="#8c8c8c" stroke-width="1" shape-rendering="crispEdges" />
+      <text class="body" font-size="11" x="302.5" y="124.5" dominant-baseline="central" text-anchor="middle">profile-readme</text>
+    </g>
+    <line class="reveal" style="animation-delay: 0.12s" x1="16" y1="146.5" x2="479" y2="146.5" stroke="#595959" stroke-width="1" shape-rendering="crispEdges" />
+    <rect x="16" y="157" width="9" height="9" fill="#f1e05a" shape-rendering="crispEdges" />
+    <text class="body reveal" style="animation-delay: 0.18s" x="31" y="166">JavaScript</text>
+    <text class="value reveal" style="animation-delay: 0.24s" x="471" y="166">0</text>
+    <text class="glyph reveal" style="animation-delay: 0.24s" x="456" y="166">Y</text>
+    <text class="value reveal" style="animation-delay: 0.24s" x="434" y="166">0</text>
+    <text class="glyph reveal" style="animation-delay: 0.24s" x="419" y="166">*</text>
   </g>
 </svg>

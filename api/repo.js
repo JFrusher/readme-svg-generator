@@ -2,7 +2,7 @@
  * GET /api/repo - one repository, pinned.
  *
  * Query parameters:
- *   repo (owner/name) or owner + name, theme, border, width, animate,
+ *   repo (owner/name) or owner + name, topics, theme, border, width, animate,
  *   cache_seconds, bg_color, text_color, accent_color, border_color
  *
  * Needs `GITHUB_TOKEN`. The allowlist applies to the repository owner, so an
@@ -29,6 +29,7 @@ const REPO_QUERY = `query repo($owner: String!, $name: String!) {
     forkCount
     isArchived
     primaryLanguage { name color }
+    repositoryTopics(first: 8) { nodes { topic { name } } }
   }
 }`;
 
@@ -105,6 +106,9 @@ export default async function handler(req, res) {
       language: repo.primaryLanguage ?? undefined,
       stars: repo.stargazerCount ?? 0,
       forks: repo.forkCount ?? 0,
+      topics: parseBoolean(query.topics, true)
+        ? (repo.repositoryTopics?.nodes ?? []).map((node) => node.topic.name)
+        : [],
       archived: Boolean(repo.isArchived),
       theme: resolveTheme(query),
       border: parseBoolean(query.border, true),

@@ -391,6 +391,40 @@ assert.ok(
 assert.ok(
   renderRepoCard({ nameWithOwner: 'a/b', archived: true, theme: themes.system }).includes('ARCHIVED')
 );
+
+// Topics render as raised tag buttons, and the card grows to fit them.
+const withTopics = renderRepoCard({
+  nameWithOwner: 'a/b',
+  description: 'One line.',
+  topics: ['svg', 'serverless', 'github-readme', 'zero-dependencies'],
+  theme: themes.system
+});
+const withoutTopics = renderRepoCard({
+  nameWithOwner: 'a/b',
+  description: 'One line.',
+  theme: themes.system
+});
+assertWellFormed(withTopics, 'repo card with topics');
+assertInsideCard(withTopics, 'repo card with topics');
+assert.ok(withTopics.includes('github-readme'), 'topic drawn');
+assert.ok(withTopics.includes('<path d='), 'topics use the bevelled button edges');
+assert.ok(!withoutTopics.includes('<path d='), 'no bevels when there are no topics');
+const heightOf = (svg) => Number(svg.match(/<svg[^>]*height="(\d+)"/)[1]);
+assert.ok(
+  heightOf(withTopics) > heightOf(withoutTopics),
+  'the card must grow to fit its topics'
+);
+
+// Enough topics to wrap must still stay inside the card.
+assertInsideCard(
+  renderRepoCard({
+    nameWithOwner: 'a/b',
+    topics: ['alpha', 'bravo', 'charlie', 'delta', 'echo', 'foxtrot', 'golf', 'hotel'],
+    theme: themes.system,
+    width: 300
+  }),
+  'repo card with wrapping topics'
+);
 assertInsideCard(
   renderRepoCard({
     nameWithOwner: 'a/b',

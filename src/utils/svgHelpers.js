@@ -160,17 +160,33 @@ export function rule({ x, y, width, color, dashed = false, index = 0 }) {
  * A rectangular tag: 1px outline, square corners, monospace label. Returns its
  * width so a caller can lay out a row without measuring twice.
  *
- * @param {{ text: string, x: number, y: number, theme: import('../themes/index.js').Theme, index?: number }} options
+ * `bevel` draws it as a raised push-button instead of a plain outline -
+ * highlight along the top and left, shadow along the bottom and right, the way
+ * the playground's own buttons are drawn.
+ *
+ * @param {{ text: string, x: number, y: number, theme: import('../themes/index.js').Theme, index?: number, bevel?: boolean }} options
  * @returns {{ svg: string, width: number, height: number }}
  */
-export function tagBox({ text, x, y, theme, index = 0 }) {
+export function tagBox({ text, x, y, theme, index = 0, bevel = false }) {
   const fontSize = 11;
   const paddingX = 7;
   const height = 20;
   const width = measureText(text, fontSize) + paddingX * 2;
+
+  const face = bevel ? mixColor(theme.bg, theme.text, 0.08) : 'none';
+  const highlight = mixColor(theme.bg, theme.text, bevel ? 0 : 0);
+  const shadow = mixColor(theme.bg, theme.text, 0.45);
+
+  // Inset by half a pixel so every 1px edge lands on a pixel, not between two.
+  const [left, top, right, bottom] = [x + 0.5, y + 0.5, x + width - 0.5, y + height - 0.5];
+  const edges = bevel
+    ? `      <path d="M${left} ${bottom} L${left} ${top} L${right} ${top}" fill="none" stroke="${highlight}" stroke-width="1" shape-rendering="crispEdges" />
+      <path d="M${right} ${top} L${right} ${bottom} L${left} ${bottom}" fill="none" stroke="${shadow}" stroke-width="1" shape-rendering="crispEdges" />`
+    : '';
+
   const svg = `    <g class="reveal"${delay(index, 0.03)}>
-      <rect x="${x}" y="${y}" width="${width}" height="${height}" fill="none" stroke="${theme.border}" stroke-width="1" shape-rendering="crispEdges" />
-      <text class="body" font-size="${fontSize}" x="${x + width / 2}" y="${y + height / 2 + 0.5}" dominant-baseline="central" text-anchor="middle">${escapeXml(text)}</text>
+      <rect x="${x}" y="${y}" width="${width}" height="${height}" fill="${face}" stroke="${theme.border}" stroke-width="1" shape-rendering="crispEdges" />
+${edges ? `${edges}\n` : ''}      <text class="body" font-size="${fontSize}" x="${x + width / 2}" y="${y + height / 2 + 0.5}" dominant-baseline="central" text-anchor="middle">${escapeXml(text)}</text>
     </g>`;
   return { svg, width, height };
 }
@@ -178,10 +194,20 @@ export function tagBox({ text, x, y, theme, index = 0 }) {
 /**
  * Lay tags out left to right, wrapping when the row runs out of space.
  *
- * @param {{ items: string[], x: number, y: number, maxWidth: number, theme: import('../themes/index.js').Theme, gap?: number, rowGap?: number, startIndex?: number }} options
+ * @param {{ items: string[], x: number, y: number, maxWidth: number, theme: import('../themes/index.js').Theme, gap?: number, rowGap?: number, startIndex?: number, bevel?: boolean }} options
  * @returns {{ svg: string, height: number, count: number }}
  */
-export function tagRow({ items, x, y, maxWidth, theme, gap = 6, rowGap = 6, startIndex = 0 }) {
+export function tagRow({
+  items,
+  x,
+  y,
+  maxWidth,
+  theme,
+  gap = 6,
+  rowGap = 6,
+  startIndex = 0,
+  bevel = false
+}) {
   const parts = [];
   let cursorX = x;
   let cursorY = y;
@@ -193,7 +219,14 @@ export function tagRow({ items, x, y, maxWidth, theme, gap = 6, rowGap = 6, star
       cursorX = x;
       cursorY += 20 + rowGap;
     }
-    const tag = tagBox({ text: item, x: cursorX, y: cursorY, theme, index: startIndex + i });
+    const tag = tagBox({
+      text: item,
+      x: cursorX,
+      y: cursorY,
+      theme,
+      index: startIndex + i,
+      bevel
+    });
     parts.push(tag.svg);
     cursorX += tag.width + gap;
     rowHeight = cursorY - y + tag.height;

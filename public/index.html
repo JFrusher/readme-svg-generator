@@ -3,7 +3,7 @@
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <title>readme-svg-generator - Card Builder v0.1</title>
+    <title>readme-svg-generator - Card Builder v0.2</title>
     <meta
       name="description"
       content="Build dynamic SVG stats, status and tech-stack cards for your GitHub profile README."
@@ -390,7 +390,7 @@
     <div class="window">
       <div class="title-bar">
         <button class="close-box" type="button" aria-label="Close" title="Close"></button>
-        <h1>readme-svg-generator - Card Builder v0.1</h1>
+        <h1>readme-svg-generator - Card Builder v0.2</h1>
       </div>
 
       <div class="menu-bar" aria-hidden="true">
@@ -513,6 +513,7 @@ cathsim  emg  malli  pbpk-abm</textarea>
               <span class="field-label">Repository (owner/name)</span>
               <input type="text" id="repo-target" value="JFrusher/readme-svg-generator" />
             </label>
+            <label><input type="checkbox" id="repo-topics" checked /> Show topics as tags</label>
           </fieldset>
 
           <fieldset>
@@ -695,6 +696,7 @@ cathsim  emg  malli  pbpk-abm</textarea>
 
         if (endpoint === 'repo') {
           params.set('repo', $('repo-target').value.trim());
+          if (!$('repo-topics').checked) params.set('topics', 'false');
         }
 
         if (endpoint === 'stats') {
