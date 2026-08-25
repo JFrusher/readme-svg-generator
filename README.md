@@ -16,6 +16,17 @@ just XML strings and HTTP caching.
 <img src="public/preview/stack.svg" alt="Tech stack card" width="495" />
 <img src="public/preview/stats.svg" alt="GitHub stats card" width="495" />
 
+**Live, from the deployment** - real data, and it follows your colour scheme:
+
+<picture>
+  <source
+    media="(prefers-color-scheme: dark)"
+    srcset="https://readme-svg-generator.vercel.app/api/stats?username=JFrusher&theme=dark&width=495" />
+  <img
+    src="https://readme-svg-generator.vercel.app/api/stats?username=JFrusher&theme=system&width=495"
+    alt="Live GitHub stats card" width="495" />
+</picture>
+
 </div>
 
 ---
@@ -90,6 +101,7 @@ Base URL is your deployment. Every endpoint also answers on a clean path (`/card
 | `text_color` | hex | theme | Body text override. |
 | `accent_color` | hex | theme | Titles, values and progress bars. |
 | `border_color` | hex | theme | Border override. |
+| `cache_seconds` | integer | `14400` | How long the card stays fresh, clamped to 60-86400. Lower it while iterating, raise it when you are done. |
 
 Booleans accept `true`/`false`, `1`/`0`, `yes`/`no`, `on`/`off`, and a bare flag (`?border`) means
 true. Invalid colours are ignored rather than injected, so a bad value degrades to the theme.
@@ -195,6 +207,45 @@ card with `Cache-Control: no-store`, so a transient problem is not cached for fo
 
 ---
 
+## Putting a card in your README
+
+GitHub proxies every image through its camo cache, which is the source of both surprises people hit.
+
+**Follow the reader's colour scheme.** GitHub supports `<picture>` in READMEs, so serve the dark
+theme to dark-mode readers and the monochrome one to everybody else:
+
+```html
+<picture>
+  <source
+    media="(prefers-color-scheme: dark)"
+    srcset="https://your-app.vercel.app/api/stats?username=you&theme=dark&width=495" />
+  <img
+    src="https://your-app.vercel.app/api/stats?username=you&theme=system&width=495"
+    alt="GitHub stats" />
+</picture>
+```
+
+Without this a `theme=system` card is a white rectangle in a dark README, and a `theme=dark` card is
+a black one in a light README.
+
+**Control how fast it updates.** Camo honours the card's `Cache-Control`, and the default is four
+hours - which is right for a published README and painful while you are still tweaking. Turn it down
+with `cache_seconds`:
+
+```markdown
+![Stats](https://your-app.vercel.app/api/stats?username=you&cache_seconds=60)
+```
+
+Sixty seconds is the floor. Once the card looks right, drop the parameter: the four-hour default is
+what keeps you off GitHub's rate limit. Changing any parameter also makes a new URL, which camo
+treats as a new image, so `&v=2` still works as a hard bust.
+
+**Expect one slow first load.** A cold serverless start plus two GitHub round trips can take a couple
+of seconds, and camo may well be the one paying it. It resolves itself on the next load, and
+`stale-while-revalidate=86400` means nobody waits for a refresh after that.
+
+---
+
 ## Snippet examples
 
 **Markdown**
@@ -208,15 +259,6 @@ card with `Cache-Control: no-store`, so a transient problem is not cached for fo
 ```html
 <img src="https://your-app.vercel.app/api/stats?username=octocat&theme=tokyo-night&width=420" width="420" />
 <img src="https://your-app.vercel.app/api/stack?Languages=Go,TypeScript&theme=tokyo-night&width=420" width="420" />
-```
-
-**Light and dark, following the reader's GitHub theme**
-
-```html
-<picture>
-  <source media="(prefers-color-scheme: dark)" srcset="https://your-app.vercel.app/api/stats?username=octocat&theme=dark" />
-  <img src="https://your-app.vercel.app/api/stats?username=octocat&theme=light" alt="GitHub stats" />
-</picture>
 ```
 
 **Custom colours, no theme**

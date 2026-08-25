@@ -61,5 +61,5 @@ export default function handler(req, res) {
     animate: parseBoolean(query.animate, true)
   });
 
-  sendSvg(res, svg);
+  sendSvg(res, svg, { maxAge: parseNumber(query.cache_seconds, undefined, 60, 86400) });
 }

@@ -14,7 +14,7 @@ import { renderStatsCard } from './src/renderers/renderStatsCard.js';
 import { renderStatusCard } from './src/renderers/renderStatusCard.js';
 import { resolveTheme, themes } from './src/themes/index.js';
 import { escapeXml, parseBoolean, parseList, parseNumber, sanitizeColor, sanitizeUsername } from './src/utils/sanitize.js';
-import { formatCount, mixColor } from './src/utils/svgHelpers.js';
+import { cacheControl, formatCount, mixColor } from './src/utils/svgHelpers.js';
 
 /** Every `<tag>` opened must be closed, and no stray `<` may survive. */
 function assertWellFormed(svg, label) {
@@ -226,5 +226,14 @@ assert.equal(isAllowedUser('jfrusher'), true, 'case-insensitive');
 assert.equal(isAllowedUser('octocat'), true, 'whitespace around entries is trimmed');
 assert.equal(isAllowedUser('someone-else'), false, 'everyone else is refused');
 delete process.env.ALLOWED_USERS;
+
+// --- cache policy ---------------------------------------------------------
+
+assert.match(cacheControl(), /max-age=14400/, 'four hours by default');
+assert.match(cacheControl(), /stale-while-revalidate=86400/);
+assert.match(cacheControl(300), /max-age=300, s-maxage=300/, 's-maxage tracks max-age');
+assert.match(cacheControl(5), /max-age=60/, 'clamped up to a minute');
+assert.match(cacheControl(999999), /max-age=86400/, 'clamped down to a day');
+assert.match(cacheControl('nonsense'), /max-age=14400/, 'garbage falls back to the default');
 
 console.log('All checks passed.');

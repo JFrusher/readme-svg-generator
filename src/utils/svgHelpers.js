@@ -275,9 +275,26 @@ export function formatCount(value) {
   return `${(number / 1_000_000).toFixed(1).replace(/\.0$/, '')}m`;
 }
 
-/** Cache policy for successful cards: 4h fresh, 24h stale-while-revalidate. */
-export const CACHE_CONTROL =
-  'public, max-age=14400, s-maxage=14400, stale-while-revalidate=86400';
+/** Default freshness for a successful card: 4 hours. */
+export const DEFAULT_MAX_AGE = 14400;
+
+/** Clamp bounds for `?cache_seconds=`: 1 minute to 1 day. */
+export const MIN_MAX_AGE = 60;
+export const MAX_MAX_AGE = 86400;
+
+/**
+ * Build the cache policy. GitHub's camo proxy honours this, so a low value is
+ * how you get a README card to update promptly while you are iterating - and a
+ * high one is how you stay off GitHub's rate limit once you are done.
+ *
+ * @param {number} [seconds=DEFAULT_MAX_AGE] clamped into [60, 86400]
+ * @returns {string}
+ */
+export function cacheControl(seconds = DEFAULT_MAX_AGE) {
+  const parsed = Number.isFinite(Number(seconds)) ? Math.trunc(Number(seconds)) : DEFAULT_MAX_AGE;
+  const maxAge = Math.min(MAX_MAX_AGE, Math.max(MIN_MAX_AGE, parsed));
+  return `public, max-age=${maxAge}, s-maxage=${maxAge}, stale-while-revalidate=86400`;
+}
 
 /**
  * Write an SVG response with the headers a README image needs. Errors are sent
@@ -285,11 +302,11 @@ export const CACHE_CONTROL =
  *
  * @param {import('http').ServerResponse} res
  * @param {string} svg
- * @param {{ cache?: boolean, status?: number }} [options]
+ * @param {{ cache?: boolean, status?: number, maxAge?: number }} [options]
  */
-export function sendSvg(res, svg, { cache = true, status = 200 } = {}) {
+export function sendSvg(res, svg, { cache = true, status = 200, maxAge } = {}) {
   res.setHeader('Content-Type', 'image/svg+xml; charset=utf-8');
-  res.setHeader('Cache-Control', cache ? CACHE_CONTROL : 'no-store, max-age=0');
+  res.setHeader('Cache-Control', cache ? cacheControl(maxAge) : 'no-store, max-age=0');
   res.setHeader('Access-Control-Allow-Origin', '*');
   res.statusCode = status;
   res.end(svg);
